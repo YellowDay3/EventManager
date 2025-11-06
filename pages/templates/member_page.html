@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Member</title></head>
+<body>
+  <h1>Member page — {{ request.user.username }}</h1>
+  {% if event %}
+    <h2>Event: {{ event.title }}</h2>
+    <p>From {{ event.start_time }} to {{ event.end_time }}</p>
+    <img id="qr" src="{% url 'generate_qr' event.id request.user.id %}" alt="QR">
+    <div id="status"></div>
+    <script>
+      // Poll the attendance status: simple approach (you can replace with websockets)
+      async function checkStatus() {
+        const resp = await fetch('/superdb/api/check_status/?event_id={{ event.id }}&user_id={{ request.user.id }}');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const s = document.getElementById('status');
+        if (data.checked_in) {
+          document.getElementById('qr').style.display = 'none';
+          s.innerText = '✅ All good — you have been scanned!';
+        } else if (data.banned) {
+          document.getElementById('qr').style.display = 'none';
+          s.innerText = '❌ You are banned — contact admin';
+        } else {
+          s.innerText = '⏳ Not scanned yet';
+        }
+      }
+      setInterval(checkStatus, 3000);
+      checkStatus();
+    </script>
+  {% else %}
+    <p>No active event right now.</p>
+  {% endif %}
+</body>
+</html>

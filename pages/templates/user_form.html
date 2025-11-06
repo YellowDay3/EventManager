@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>User form</title></head>
+<body>
+  <h1>{% if create %}Create user{% else %}Edit user {{ user_obj.username }}{% endif %}</h1>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+  <a href="{% url 'admin_dashboard' %}">Back</a>
+</body>
+</html>

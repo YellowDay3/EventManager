@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><title>Scanner</title>
+  <style>
+    #video { width: 480px; height: 360px; background: #000; }
+  </style>
+</head>
+<body>
+  <h1>Scanner — {{ request.user.username }}</h1>
+  <video id="video" autoplay></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <div id="result">Ready to scan</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const result = document.getElementById('result');
+    let scanning = true;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+      .then(stream => { video.srcObject = stream; video.play(); })
+      .catch(e => { result.innerText = 'Camera error: '+e; });
+
+    function tick() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+        const code = jsQR(imgData.data, imgData.width, imgData.height);
+        if (code) {
+          scanning = false;
+          result.innerText = 'Scanned — sending to server...';
+          sendToken(code.data);
+        }
+      }
+      if (scanning) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    async function sendToken(token) {
+      try {
+        const resp = await fetch("{% url 'scan_endpoint' %}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({ token })
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          result.innerText = '✅ ' + (data.message || 'Checked in');
+        } else {
+          result.innerText = '❌ ' + (data.error || 'Error');
+        }
+      } catch (e) {
+        result.innerText = 'Network error: ' + e;
+      }
+      // allow scanning again after 3s
+      setTimeout(() => { scanning = true; requestAnimationFrame(tick); }, 3000);
+    }
+
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? v.pop() : '';
+    }
+  </script>
+</body>
+</html>

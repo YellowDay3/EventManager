@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Admin</title></head>
+<body>
+  <h1>Admin dashboard</h1>
+  <p><a href="{% url 'user_create' %}">Create user</a></p>
+  <h2>Users</h2>
+  <table border="1">
+    <tr><th>username</th><th>role</th><th>penalty</th><th>actions</th></tr>
+    {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>{{ u.role }}</td>
+        <td>{{ u.penalty_status }} ({{ u.penalty_count }})</td>
+        <td>
+          <a href="{% url 'user_edit' u.id %}">edit</a>
+          <a href="{% url 'user_delete' u.id %}">delete</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Events</h2>
+  <ul>
+    {% for e in events %}
+      <li>{{ e.title }} — {{ e.start_time }} → {{ e.end_time }}</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

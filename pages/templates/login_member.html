@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    
+    <body>
+        <form method="post" id="loginForm">
+          {% csrf_token %}
+          <label>Username:</label>
+          <input type="text" name="username" id="username" required><br>
+
+          <div id="passwordDiv" style="display:none;">
+            <label>Password:</label>
+            <input type="password" name="password"><br>
+          </div>
+
+          <button type="submit">Login</button>
+          {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+        </form>
+
+        <script>
+        document.getElementById('username').addEventListener('input', async (e) => {
+          const username = e.target.value.trim();
+          if (!username) return;
+
+          const response = await fetch(`/check-role/${username}/`);
+          const data = await response.json();
+
+          if (data.role === 'admin') {
+            document.getElementById('passwordDiv').style.display = 'block';
+          } else {
+            document.getElementById('passwordDiv').style.display = 'none';
+          }
+        });
+        </script>
+
+    </body>
+</html>
