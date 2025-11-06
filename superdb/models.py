@@ -1,6 +1,7 @@
 # superdb/models.py
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 from django.conf import settings
 
@@ -16,24 +17,44 @@ ROLE_CHOICES = [
     ('admin', 'Admin'),
 ]
 
-class User(models.Model):
+class UserManager(BaseUserManager):
+    def create_user(self, username, password=None, **extra_fields):
+        if not username:
+            raise ValueError("Username is required")
+        user = self.model(username=username, **extra_fields)
+        user.password = password or ''  # store raw
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, password=None, **extra_fields):
+        extra_fields.setdefault('role', 'admin')
+        
+        return self.create_user(username, password, **extra_fields)
+
+class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=150, unique=True)
-    password = models.CharField(max_length=128, blank=True, null=True)
+    password = models.CharField(max_length=128, blank=True, null=True)  # stored raw
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='member')
     penalty_count = models.IntegerField(default=0)
     penalty_status = models.CharField(max_length=10, default='ok')
     is_active_member = models.BooleanField(default=True)
     last_login = models.DateTimeField(null=True, blank=True)
-    timeout_until = models.DateTimeField(null=True, blank=True)  # for 1-min bans
+    timeout_until = models.DateTimeField(null=True, blank=True)
+    #is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
+    objects = UserManager()
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
+    # Override AbstractBaseUser’s behavior so no hashing occurs
     def set_password(self, raw_password):
-        self.password = make_password(raw_password)
-        self.save()
+        self.password = raw_password
+        self.save(update_fields=['password'])
 
     def check_password(self, raw_password):
-        if not self.password:
-            return False
-        return check_password(raw_password, self.password)
+        return self.password == raw_password
 
     def __str__(self):
         return f"{self.username} ({self.role})"

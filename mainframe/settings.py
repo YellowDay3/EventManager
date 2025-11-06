@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+
 AUTH_USER_MODEL = 'superdb.User'
 
 INSTALLED_APPS = [

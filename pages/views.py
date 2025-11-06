@@ -12,21 +12,41 @@ from io import BytesIO
 import zipfile
 from django.utils import timezone
 from datetime import timedelta
+import json
+from django.views.decorators.csrf import csrf_exempt
+
+# Add this view function to your existing views.py
+@csrf_exempt
+def check_role(request):
+    """
+    AJAX endpoint to check user role dynamically
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username', '').strip()
+            
+            if not username:
+                return JsonResponse({'role': None})
+            
+            try:
+                user = User.objects.get(username=username)
+                return JsonResponse({'role': user.role})
+            except User.DoesNotExist:
+                return JsonResponse({'role': None})
+                
+        except json.JSONDecodeError:
+            return JsonResponse({'role': None, 'error': 'Invalid JSON'})
+    
+    return JsonResponse({'role': None, 'error': 'Invalid request method'})
 
 # ---- simple role checks ----
-def is_admin(user): return user.is_authenticated and user.is_admin()
-def is_scanner(user): return user.is_authenticated and user.is_scanner()
-def is_member(user): return user.is_authenticated and user.is_member()
+def is_admin(user): return user.is_authenticated and user.role == "member"
+def is_scanner(user): return user.is_authenticated and user.role == "scanner"
+def is_member(user): return user.is_authenticated and user.role == "admin"
 
 def login_redirect(request):
     return redirect("/accounts/login")
-
-def check_role(request, username):
-    try:
-        user = User.objects.get(username=username)
-        return JsonResponse({'role': user.role})
-    except User.DoesNotExist:
-        return JsonResponse({'role': None})
 
 # ---- login views ----
 def login_view(request):

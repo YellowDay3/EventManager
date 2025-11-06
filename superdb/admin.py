@@ -4,11 +4,10 @@ from .models import User, Event, Attendance, Penalty
 from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
 
 @admin.register(User)
-class UserAdmin(DefaultUserAdmin):
-    model = User
-    list_display = ('username', 'email', 'role', 'penalty_status', 'penalty_count', 'is_active_member', 'is_staff')
-    list_filter = ('role', 'penalty_status')
-    search_fields = ('username', 'email')
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'role', 'penalty_status', 'penalty_count', 'is_active_member')
+    list_filter = ('role', 'penalty_status', 'is_active_member')
+    search_fields = ('username',)
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):

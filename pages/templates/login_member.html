@@ -1,36 +1,171 @@
-<!doctype html>
-<html>
-    
-    <body>
-        <form method="post" id="loginForm">
-          {% csrf_token %}
-          <label>Username:</label>
-          <input type="text" name="username" id="username" required><br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Event Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.2s ease-out;
+        }
+        .spinner {
+            border: 2px solid #e5e7eb;
+            border-top-color: #4f46e5;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 mb-1">Welcome Back</h1>
+            <p class="text-sm text-gray-600">Sign in to your account</p>
+        </div>
 
-          <div id="passwordDiv" style="display:none;">
-            <label>Password:</label>
-            <input type="password" name="password"><br>
-          </div>
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p class="text-sm text-red-700">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-          <button type="submit">Login</button>
-          {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
+        <form method="POST" id="login-form" class="space-y-5">
+            {% csrf_token %}
+            
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                    Username
+                </label>
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        required
+                        autocomplete="username"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                        placeholder="Enter your username"
+                    />
+                    <div id="checking-spinner" class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="password-container"></div>
+
+            <button
+                type="submit"
+                id="submit-btn"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg transition-colors"
+            >
+                Sign In
+            </button>
         </form>
 
-        <script>
-        document.getElementById('username').addEventListener('input', async (e) => {
-          const username = e.target.value.trim();
-          if (!username) return;
+        <div class="mt-6 text-center">
+            <p class="text-xs text-gray-500">
+                Need help? Contact your administrator
+            </p>
+        </div>
+    </div>
 
-          const response = await fetch(`/check-role/${username}/`);
-          const data = await response.json();
+    <script>
+        var checkTimeout = null;
+        var isAdmin = false;
+        var passwordFieldExists = false;
 
-          if (data.role === 'admin') {
-            document.getElementById('passwordDiv').style.display = 'block';
-          } else {
-            document.getElementById('passwordDiv').style.display = 'none';
-          }
+        var usernameInput = document.getElementById('username');
+        var passwordContainer = document.getElementById('password-container');
+        var checkingSpinner = document.getElementById('checking-spinner');
+        var loginForm = document.getElementById('login-form');
+
+        function createPasswordField() {
+            if (passwordFieldExists) return;
+            
+            passwordContainer.innerHTML = '<div class="fade-in"><label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label><input type="password" id="password" name="password" required autocomplete="current-password" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="Enter your password" /></div>';
+            passwordFieldExists = true;
+        }
+
+        function removePasswordField() {
+            passwordContainer.innerHTML = '';
+            passwordFieldExists = false;
+        }
+
+        function checkUserRole(username) {
+            if (username.length < 3) {
+                removePasswordField();
+                isAdmin = false;
+                return;
+            }
+
+            checkingSpinner.classList.remove('hidden');
+
+            fetch('/check-role/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ username: username })
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.role === 'admin') {
+                    isAdmin = true;
+                    createPasswordField();
+                } else {
+                    isAdmin = false;
+                    removePasswordField();
+                }
+            })
+            .catch(function(error) {
+                isAdmin = false;
+                removePasswordField();
+            })
+            .finally(function() {
+                checkingSpinner.classList.add('hidden');
+            });
+        }
+
+        usernameInput.addEventListener('input', function() {
+            clearTimeout(checkTimeout);
+            var self = this;
+            checkTimeout = setTimeout(function() {
+                checkUserRole(self.value.trim());
+            }, 300);
         });
-        </script>
 
-    </body>
+        loginForm.addEventListener('submit', function(e) {
+            var passwordInput = document.getElementById('password');
+            var hasPassword = passwordInput && passwordInput.value.trim() !== '';
+
+            if (!isAdmin && hasPassword) {
+                e.preventDefault();
+                return false;
+            }
+
+            if (isAdmin && !hasPassword) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
 </html>

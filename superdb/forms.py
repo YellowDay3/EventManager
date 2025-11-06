@@ -6,7 +6,7 @@ class AdminUserForm(forms.ModelForm):
     password = forms.CharField(required=False, widget=forms.PasswordInput, help_text="Set a password for admin accounts only.")
     class Meta:
         model = User
-        fields = ['username', 'email', 'role', 'is_active_member', 'penalty_status', 'penalty_count', 'is_staff']
+        fields = ['username', 'role', 'is_active_member', 'penalty_status', 'penalty_count',]
 
     def save(self, commit=True):
         user = super().save(commit=False)
