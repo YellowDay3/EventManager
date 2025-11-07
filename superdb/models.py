@@ -28,7 +28,15 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, username, password=None, **extra_fields):
         extra_fields.setdefault('role', 'admin')
-        
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        #extra_fields.setdefault("is_active", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
         return self.create_user(username, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -67,12 +75,19 @@ class Event(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='events_created')
     max_attendees = models.PositiveIntegerField(null=True, blank=True)
 
+    assigned_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='assigned_events'
+    )
+
     def is_running(self, at=None):
         at = at or timezone.now()
         return self.start_time <= at <= self.end_time
 
     def __str__(self):
         return f"{self.title} ({self.start_time} → {self.end_time})"
+
 
 class Attendance(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='attendances')

@@ -25,12 +25,16 @@ SECRET_KEY = 'django-insecure-li#v&p1ti7@lp(nbn+1u5dks-0pu-6b)a6b-&tc)r*s)h5c48*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.255', '192.168.1.9', 'localhost', '127.0.0.1', '*', 'incubative-pearly-kylan.ngrok-free.dev']
 
 
 # Application definition
 
 AUTH_USER_MODEL = 'superdb.User'
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pages',
-    'superdb'
+    'superdb',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,451 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{ create|yesno:"Create Event,Edit Event" }}</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .container {
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  
+  h2 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #667eea;
+    text-align: center;
+  }
+  
+  form p {
+    margin-bottom: 1.5rem;
+  }
+  
+  label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="datetime-local"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 0.875rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: white;
+  }
+  
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  
+  .helptext {
+    display: block;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+  
+  .errorlist {
+    list-style: none;
+    margin: 0.5rem 0 0 0;
+    padding: 0;
+  }
+  
+  .errorlist li {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  
+  button[type="submit"] {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    margin-top: 0.5rem;
+  }
+  
+  button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  }
+  
+  button[type="submit"]:active {
+    transform: translateY(0);
+  }
+  
+  .back-link {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .back-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+  
+  .back-link::before {
+    content: "← ";
+  }
+  
+  .datetime-field {
+    margin-bottom: 1.5rem;
+  }
+  
+  .datetime-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .date-input,
+  .time-input {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .attendees-field {
+    margin-bottom: 1.5rem;
+  }
+  
+  .attendees-toggle {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  .toggle-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  
+  .toggle-option:hover {
+    border-color: #667eea;
+    background: #f9fafb;
+  }
+  
+  .toggle-option input[type="radio"] {
+    margin-right: 0.5rem;
+    width: auto;
+    cursor: pointer;
+  }
+  
+  .toggle-option input[type="radio"]:checked + .radio-label {
+    color: #667eea;
+    font-weight: 600;
+  }
+  
+  .toggle-option:has(input[type="radio"]:checked) {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+  }
+  
+  .radio-label {
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 640px) {
+    body {
+      padding: 1rem;
+    }
+    
+    .card {
+      padding: 1.5rem;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+    }
+    
+    .datetime-inputs {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <a href="{% url 'admin_dashboard' %}" class="back-link">Back to Dashboard</a>
+    
+    <div class="card">
+      <h2>{{ create|yesno:"Create Event,Edit Event" }}</h2>
+      <form method="POST">
+        {% csrf_token %}
+        
+        {% for field in form %}
+          {% if field.name == 'start_time' or field.name == 'end_time' %}
+            <div class="datetime-field">
+              <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {% if field.field.required %}<span style="color: #ef4444;">*</span>{% endif %}
+              </label>
+              
+              <div class="datetime-inputs">
+                <div class="date-input">
+                  <label for="id_{{ field.name }}_date" style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Date</label>
+                  <input 
+                    type="date" 
+                    id="id_{{ field.name }}_date" 
+                    name="{{ field.name }}_date"
+                    value="{{ field.value|date:'Y-m-d'|default:'' }}"
+                    required
+                  >
+                </div>
+                
+                <div class="time-input">
+                  <label for="id_{{ field.name }}_time" style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Time</label>
+                  <input 
+                    type="time" 
+                    id="id_{{ field.name }}_time" 
+                    name="{{ field.name }}_time"
+                    value="{{ field.value|date:'H:i'|default:'' }}"
+                    required
+                  >
+                </div>
+              </div>
+              
+              <!-- Hidden field to store the combined datetime -->
+              <input type="hidden" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value|default:'' }}">
+              
+              {% if field.help_text %}
+                <span class="helptext">{{ field.help_text }}</span>
+              {% endif %}
+              
+              {% if field.errors %}
+                <ul class="errorlist">
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% elif field.name == 'max_attendees' %}
+            <div class="attendees-field">
+              <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+              </label>
+              
+              <div class="attendees-toggle">
+                <label class="toggle-option">
+                  <input 
+                    type="radio" 
+                    name="attendees_type" 
+                    value="unlimited" 
+                    id="unlimited_attendees"
+                    {% if not field.value %}checked{% endif %}
+                  >
+                  <span class="radio-label">Unlimited</span>
+                </label>
+                
+                <label class="toggle-option">
+                  <input 
+                    type="radio" 
+                    name="attendees_type" 
+                    value="limited" 
+                    id="limited_attendees"
+                    {% if field.value %}checked{% endif %}
+                  >
+                  <span class="radio-label">Limited</span>
+                </label>
+              </div>
+              
+              <div id="attendees_number_container" style="margin-top: 1rem; {% if not field.value %}display: none;{% endif %}">
+                <label for="id_{{ field.name }}_number" style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.25rem;">Maximum Number of Attendees</label>
+                <input 
+                  type="number" 
+                  id="id_{{ field.name }}_number" 
+                  name="{{ field.name }}_number"
+                  value="{{ field.value|default:'' }}"
+                  min="1"
+                  placeholder="e.g., 100"
+                  style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;"
+                >
+              </div>
+              
+              <!-- Hidden field to store the actual value -->
+              <input type="hidden" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value|default:'' }}">
+              
+              {% if field.help_text %}
+                <span class="helptext">{{ field.help_text }}</span>
+              {% endif %}
+              
+              {% if field.errors %}
+                <ul class="errorlist">
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% else %}
+            <p>
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.help_text %}
+                <span class="helptext">{{ field.help_text }}</span>
+              {% endif %}
+              {% if field.errors %}
+                <ul class="errorlist">
+                  {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </p>
+          {% endif %}
+        {% endfor %}
+        
+        <button type="submit">{{ create|yesno:"Create Event,Save Changes" }}</button>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    // Combine date and time inputs into datetime field
+    function updateDateTime(fieldName) {
+      const dateInput = document.getElementById(`id_${fieldName}_date`);
+      const timeInput = document.getElementById(`id_${fieldName}_time`);
+      const hiddenInput = document.getElementById(`id_${fieldName}`);
+      
+      if (dateInput.value && timeInput.value) {
+        // Combine date and time into ISO format
+        hiddenInput.value = `${dateInput.value}T${timeInput.value}:00`;
+      }
+    }
+    
+    // Add event listeners for start_time
+    const startDate = document.getElementById('id_start_time_date');
+    const startTime = document.getElementById('id_start_time_time');
+    
+    if (startDate && startTime) {
+      startDate.addEventListener('change', () => updateDateTime('start_time'));
+      startTime.addEventListener('change', () => updateDateTime('start_time'));
+    }
+    
+    // Add event listeners for end_time
+    const endDate = document.getElementById('id_end_time_date');
+    const endTime = document.getElementById('id_end_time_time');
+    
+    if (endDate && endTime) {
+      endDate.addEventListener('change', () => updateDateTime('end_time'));
+      endTime.addEventListener('change', () => updateDateTime('end_time'));
+    }
+    
+    // Initialize on page load (for edit mode)
+    updateDateTime('start_time');
+    updateDateTime('end_time');
+    
+    // Handle max attendees toggle
+    const unlimitedRadio = document.getElementById('unlimited_attendees');
+    const limitedRadio = document.getElementById('limited_attendees');
+    const attendeesContainer = document.getElementById('attendees_number_container');
+    const attendeesNumberInput = document.getElementById('id_max_attendees_number');
+    const attendeesHiddenInput = document.getElementById('id_max_attendees');
+    
+    function updateAttendeesField() {
+      if (unlimitedRadio && unlimitedRadio.checked) {
+        attendeesContainer.style.display = 'none';
+        attendeesHiddenInput.value = '';
+        if (attendeesNumberInput) {
+          attendeesNumberInput.value = '';
+        }
+      } else if (limitedRadio && limitedRadio.checked) {
+        attendeesContainer.style.display = 'block';
+        if (attendeesNumberInput && attendeesNumberInput.value) {
+          attendeesHiddenInput.value = attendeesNumberInput.value;
+        }
+      }
+    }
+    
+    if (unlimitedRadio) {
+      unlimitedRadio.addEventListener('change', updateAttendeesField);
+    }
+    
+    if (limitedRadio) {
+      limitedRadio.addEventListener('change', updateAttendeesField);
+    }
+    
+    if (attendeesNumberInput) {
+      attendeesNumberInput.addEventListener('input', function() {
+        if (limitedRadio && limitedRadio.checked) {
+          attendeesHiddenInput.value = this.value;
+        }
+      });
+    }
+    
+    // Initialize attendees field on page load
+    updateAttendeesField();
+  </script>
+</body>
+</html>

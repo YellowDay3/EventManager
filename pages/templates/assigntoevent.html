@@ -1,0 +1,598 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Assign Users to {{ event.title }}</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .back-btn {
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  h1 {
+    color: white;
+    font-size: 2.5rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .event-info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  
+  .event-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  
+  .event-time {
+    color: #6b7280;
+    font-size: 1rem;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  
+  h2 {
+    color: #333;
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #667eea;
+  }
+  
+  .search-box {
+    margin-bottom: 1.5rem;
+  }
+  
+  .search-box input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .search-box input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  .select-all {
+    padding: 1rem;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: 2px solid #d1d5db;
+  }
+  
+  .select-all input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+  
+  .select-all label {
+    cursor: pointer;
+    font-weight: 600;
+    color: #374151;
+    font-size: 1rem;
+  }
+  
+  .user-list {
+    list-style: none;
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 1.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .user-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .user-list::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+  }
+  
+  .user-list::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+  }
+  
+  .user-list::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
+  }
+  
+  .user-item {
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+  }
+  
+  .user-item:hover {
+    border-color: #667eea;
+    background: #f9fafb;
+    transform: translateX(4px);
+  }
+  
+  .user-item.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  }
+  
+  .user-item input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  
+  .user-info {
+    flex: 1;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .user-details {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  .badge-admin {
+    background: #10b981;
+    color: white;
+  }
+  
+  .badge-user {
+    background: #3b82f6;
+    color: white;
+  }
+  
+  .badge-scanner {
+    background: #8b5cf6;
+    color: white;
+  }
+  
+  .penalty-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  .penalty-warning {
+    background: #fef3c7;
+    color: #78350f;
+  }
+  
+  .penalty-banned {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  
+  .penalty-ok {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  .card-icon {
+    width: 12px;
+    height: 18px;
+    border-radius: 2px;
+    display: inline-block;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transform: rotate(-12deg);
+  }
+  
+  .yellow-card {
+    background: #fbbf24;
+    border: 1.5px solid #d97706;
+  }
+  
+  .red-card {
+    background: #ef4444;
+    border: 1.5px solid #b91c1c;
+  }
+  
+  .green-card {
+    background: #10b981;
+    border: 1.5px solid #059669;
+  }
+  
+  .selected-count {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+  }
+  
+  .btn {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+    text-decoration: none;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-cancel {
+    background: #e5e7eb;
+    color: #374151;
+  }
+  
+  .btn-cancel:hover {
+    background: #d1d5db;
+    transform: translateY(-2px);
+  }
+  
+  .btn-save {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+  
+  .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+  }
+  
+  .empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .empty-state-text {
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 768px) {
+    body {
+      padding: 1rem;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+    }
+    
+    .header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    
+    .card {
+      padding: 1.5rem;
+    }
+    
+    .actions {
+      flex-direction: column;
+    }
+    
+    .user-details {
+      font-size: 0.875rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Assign Users to Event</h1>
+      <a href="{% url 'admin_dashboard' %}" class="back-btn">
+        <span>←</span>
+        Back to Dashboard
+      </a>
+    </div>
+    
+    <div class="event-info-card">
+      <div class="event-title">{{ event.title }}</div>
+      <div class="event-time">{{ event.start_time }} → {{ event.end_time }}</div>
+    </div>
+    
+    <div class="card">
+      <h2>Select Users</h2>
+      
+      <div class="search-box">
+        <input type="text" id="userSearch" placeholder="🔍 Search users by name or role..." onkeyup="filterUsers()">
+      </div>
+      
+      <div class="select-all">
+        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+        <label for="selectAll">Select All Visible Users</label>
+      </div>
+      
+      <div class="selected-count" id="selectedCount">
+        0 users selected
+      </div>
+      
+      <ul class="user-list" id="userList">
+        {% for u in users %}
+        <li class="user-item" data-user-id="{{ u.id }}" data-username="{{ u.username|lower }}" data-role="{{ u.role|lower }}" onclick="toggleUser(this)">
+          <input type="checkbox" class="user-checkbox" value="{{ u.id }}" {% if u.id in assigned_user_ids %}checked{% endif %} onclick="event.stopPropagation()">
+          <div class="user-info">
+            <div class="user-name">{{ u.username }}</div>
+            <div class="user-details">
+              <span class="badge {% if u.role == 'admin' %}badge-admin{% elif u.role == 'scanner' %}badge-scanner{% else %}badge-user{% endif %}">{{ u.role }}</span>
+              <span class="penalty-badge {% if u.penalty_status == 'banned' %}penalty-banned{% elif u.penalty_status == 'warning' %}penalty-warning{% else %}penalty-ok{% endif %}">
+                {% if u.penalty_status == 'warning' %}
+                  <span class="card-icon yellow-card"></span>
+                {% elif u.penalty_status == 'banned' %}
+                  <span class="card-icon red-card"></span>
+                {% else %}
+                  <span class="card-icon green-card"></span>
+                {% endif %}
+                {{ u.penalty_status }}
+              </span>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      
+      <div class="actions">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-cancel">
+          <span>✕</span>
+          Cancel
+        </a>
+        <button class="btn btn-save" onclick="saveAssignments()">
+          <span>✓</span>
+          Save Assignments
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function toggleUser(element) {
+      const checkbox = element.querySelector('.user-checkbox');
+      checkbox.checked = !checkbox.checked;
+      
+      if (checkbox.checked) {
+        element.classList.add('selected');
+      } else {
+        element.classList.remove('selected');
+      }
+      
+      updateSelectedCount();
+      updateSelectAllCheckbox();
+    }
+    
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll');
+      const visibleCheckboxes = Array.from(document.querySelectorAll('.user-item:not([style*="display: none"]) .user-checkbox'));
+      
+      visibleCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+        const userItem = checkbox.closest('.user-item');
+        if (selectAll.checked) {
+          userItem.classList.add('selected');
+        } else {
+          userItem.classList.remove('selected');
+        }
+      });
+      
+      updateSelectedCount();
+    }
+    
+    function updateSelectAllCheckbox() {
+      const visibleCheckboxes = Array.from(document.querySelectorAll('.user-item:not([style*="display: none"]) .user-checkbox'));
+      const checkedCount = visibleCheckboxes.filter(cb => cb.checked).length;
+      const selectAll = document.getElementById('selectAll');
+      
+      selectAll.checked = visibleCheckboxes.length > 0 && checkedCount === visibleCheckboxes.length;
+    }
+    
+    function updateSelectedCount() {
+      const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+      const countElement = document.getElementById('selectedCount');
+      countElement.textContent = `${checkedCount} user${checkedCount !== 1 ? 's' : ''} selected`;
+    }
+    
+    function filterUsers() {
+      const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+      const userItems = document.querySelectorAll('.user-item');
+      let visibleCount = 0;
+      
+      userItems.forEach(item => {
+        const username = item.dataset.username;
+        const role = item.dataset.role;
+        
+        if (username.includes(searchTerm) || role.includes(searchTerm)) {
+          item.style.display = 'flex';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      // Show empty state if no results
+      const userList = document.getElementById('userList');
+      let emptyState = document.getElementById('emptyState');
+      
+      if (visibleCount === 0 && !emptyState) {
+        emptyState = document.createElement('div');
+        emptyState.id = 'emptyState';
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-text">No users found matching your search</div>
+        `;
+        userList.appendChild(emptyState);
+      } else if (visibleCount > 0 && emptyState) {
+        emptyState.remove();
+      }
+      
+      updateSelectAllCheckbox();
+    }
+    
+    function saveAssignments() {
+      const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+      
+      if (selectedUsers.length === 0) {
+        alert('Please select at least one user to assign.');
+        return;
+      }
+      
+      // Make AJAX call to save assignments
+      fetch("{% url 'event_assign_users' event.id %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ user_ids: selectedUsers })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(`Successfully assigned ${selectedUsers.length} user${selectedUsers.length !== 1 ? 's' : ''} to the event!`);
+          window.location.href = "{% url 'admin_dashboard' %}";
+        } else {
+          alert('Error: ' + (data.error || 'Failed to assign users'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while saving assignments.');
+      });
+    }
+    
+    // Listen to checkbox changes to update UI
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize selected state for pre-checked users
+      document.querySelectorAll('.user-checkbox:checked').forEach(checkbox => {
+        const userItem = checkbox.closest('.user-item');
+        userItem.classList.add('selected');
+      });
+      
+      document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function(e) {
+          e.stopPropagation();
+          const userItem = this.closest('.user-item');
+          if (this.checked) {
+            userItem.classList.add('selected');
+          } else {
+            userItem.classList.remove('selected');
+          }
+          updateSelectedCount();
+          updateSelectAllCheckbox();
+        });
+      });
+      
+      updateSelectedCount();
+      updateSelectAllCheckbox();
+    });
+  </script>
+</body>
+</html>

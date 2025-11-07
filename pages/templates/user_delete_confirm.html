@@ -1,11 +1,155 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Delete user</title></head>
+<head>
+<meta charset="utf-8">
+<title>Delete User</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .container {
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  
+  .warning-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border: 4px solid #ef4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 3rem;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .username {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #f3f4f6;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 1.5rem;
+  }
+  
+  .warning-text {
+    color: #6b7280;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  button[type="submit"] {
+    flex: 1;
+    padding: 1rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  }
+  
+  button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(239, 68, 68, 0.6);
+  }
+  
+  button[type="submit"]:active {
+    transform: translateY(0);
+  }
+  
+  .cancel-link {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: #f3f4f6;
+    color: #374151;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+  
+  .cancel-link:hover {
+    background: #e5e7eb;
+    transform: translateY(-2px);
+  }
+</style>
+</head>
 <body>
-  <h1>Delete {{ user_obj.username }}?</h1>
-  <form method="post">{% csrf_token %}
-    <button type="submit">Yes, delete</button>
-  </form>
-  <a href="{% url 'admin_dashboard' %}">Cancel</a>
+  <div class="container">
+    <div class="card">
+      <div class="warning-icon">⚠️</div>
+      
+      <h1>Delete User?</h1>
+      
+      <div class="username">{{ user_obj.username }}</div>
+      
+      <p class="warning-text">
+        This action cannot be undone. This will permanently delete the user account and all associated data.
+      </p>
+      
+      <form method="post">
+        {% csrf_token %}
+        <div class="button-group">
+          <a href="{% url 'admin_dashboard' %}" class="cancel-link">← Cancel</a>
+          <button type="submit">🗑️ Yes, Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

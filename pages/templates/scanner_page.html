@@ -1,16 +1,657 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"><title>Scanner</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scanner</title>
   <style>
-    #video { width: 480px; height: 360px; background: #000; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .logout-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0.75rem 1.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 2rem;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .header .username {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .scanner-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto 2rem;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 4px solid #667eea;
+    }
+    
+    #video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background: #000;
+      object-fit: cover;
+    }
+    
+    .scanner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .scanner-frame {
+      position: relative;
+      width: 95%;
+      height: 95%;
+      border: 3px solid rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    }
+    
+    .scanner-frame::before,
+    .scanner-frame::after,
+    .corner-tl,
+    .corner-tr {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border: 5px solid #667eea;
+    }
+    
+    .scanner-frame::before {
+      top: -5px;
+      left: -5px;
+      border-right: none;
+      border-bottom: none;
+      border-top-left-radius: 16px;
+    }
+    
+    .scanner-frame::after {
+      bottom: -5px;
+      right: -5px;
+      border-left: none;
+      border-top: none;
+      border-bottom-right-radius: 16px;
+    }
+    
+    .corner-tl {
+      top: -5px;
+      right: -5px;
+      border-left: none;
+      border-bottom: none;
+      border-top-right-radius: 16px;
+    }
+    
+    .corner-tr {
+      bottom: -5px;
+      left: -5px;
+      border-right: none;
+      border-top: none;
+      border-bottom-left-radius: 16px;
+    }
+    
+    .scan-line {
+      position: absolute;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #667eea, transparent);
+      top: 0;
+      left: 0;
+      animation: scan 2s ease-in-out infinite;
+      box-shadow: 0 0 10px #667eea;
+    }
+    
+    @keyframes scan {
+      0%, 100% { top: 0; }
+      50% { top: calc(100% - 3px); }
+    }
+    
+    #canvas {
+      display: none;
+    }
+    
+    .result-container {
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1.5rem;
+      background: #f9fafb;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .result-container.show {
+      opacity: 1;
+    }
+    
+    .result-text {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .result-ready {
+      color: #667eea;
+    }
+    
+    .result-scanning {
+      color: #f59e0b;
+    }
+    
+    .result-success {
+      color: #10b981;
+    }
+    
+    .result-error {
+      color: #ef4444;
+    }
+    
+    /* Success Checkmark Animation */
+    .success-checkmark {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 0.5rem;
+    }
+    
+    .check-icon {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      border-radius: 50%;
+      box-sizing: content-box;
+      border: 3px solid #10b981;
+    }
+    
+    .check-icon::before {
+      top: 2px;
+      left: -1px;
+      width: 19px;
+      transform-origin: 100% 50%;
+      border-radius: 100px 0 0 100px;
+    }
+    
+    .check-icon::after {
+      top: 0;
+      left: 19px;
+      width: 38px;
+      transform-origin: 0 50%;
+      border-radius: 0 100px 100px 0;
+      animation: rotate-circle 4.25s ease-in;
+    }
+    
+    .check-icon::before, .check-icon::after {
+      content: '';
+      height: 62px;
+      position: absolute;
+      background: #f9fafb;
+      transform: rotate(-45deg);
+    }
+    
+    .icon-line {
+      height: 3px;
+      background-color: #10b981;
+      display: block;
+      border-radius: 2px;
+      position: absolute;
+      z-index: 10;
+    }
+    
+    .icon-line.line-tip {
+      top: 29px;
+      left: 9px;
+      width: 16px;
+      transform: rotate(45deg);
+      animation: icon-line-tip 0.75s;
+    }
+    
+    .icon-line.line-long {
+      top: 24px;
+      right: 5px;
+      width: 29px;
+      transform: rotate(-45deg);
+      animation: icon-line-long 0.75s;
+    }
+    
+    .icon-circle {
+      top: -3px;
+      left: -3px;
+      z-index: 10;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      position: absolute;
+      box-sizing: content-box;
+      border: 3px solid rgba(16, 185, 129, 0.5);
+    }
+    
+    .icon-fix {
+      top: 5px;
+      width: 3px;
+      left: 16px;
+      z-index: 1;
+      height: 53px;
+      position: absolute;
+      transform: rotate(-45deg);
+      background-color: #f9fafb;
+    }
+    
+    @keyframes rotate-circle {
+      0% {
+        transform: rotate(-45deg);
+      }
+      5% {
+        transform: rotate(-45deg);
+      }
+      12% {
+        transform: rotate(-405deg);
+      }
+      100% {
+        transform: rotate(-405deg);
+      }
+    }
+    
+    @keyframes icon-line-tip {
+      0% {
+        width: 0;
+        left: 1px;
+        top: 12px;
+      }
+      54% {
+        width: 0;
+        left: 1px;
+        top: 12px;
+      }
+      70% {
+        width: 31px;
+        left: -5px;
+        top: 23px;
+      }
+      84% {
+        width: 11px;
+        left: 13px;
+        top: 30px;
+      }
+      100% {
+        width: 16px;
+        left: 9px;
+        top: 28px;
+      }
+    }
+    
+    @keyframes icon-line-long {
+      0% {
+        width: 0;
+        right: 29px;
+        top: 34px;
+      }
+      65% {
+        width: 0;
+        right: 29px;
+        top: 34px;
+      }
+      84% {
+        width: 34px;
+        right: 0px;
+        top: 22px;
+      }
+      100% {
+        width: 29px;
+        right: 5px;
+        top: 24px;
+      }
+    }
+    
+    /* Error X Animation */
+    .error-checkmark {
+      width: 50px;
+      height: 50px;
+      margin: 0 auto 0.5rem;
+    }
+    
+    .error-icon {
+      width: 50px;
+      height: 50px;
+      position: relative;
+      border-radius: 50%;
+      box-sizing: content-box;
+      border: 3px solid #ef4444;
+      background-color: #f9fafb;
+    }
+    
+    .error-icon::before,
+    .error-icon::after {
+      content: '';
+      position: absolute;
+      height: 3px;
+      width: 29px;
+      background-color: #ef4444;
+      border-radius: 2px;
+      top: 23px;
+      left: 10px;
+    }
+    
+    .error-icon::before {
+      transform: rotate(45deg);
+      animation: error-icon-line 0.75s;
+    }
+    
+    .error-icon::after {
+      transform: rotate(-45deg);
+      animation: error-icon-line 0.75s 0.25s;
+    }
+    
+    .error-circle {
+      top: -3px;
+      left: -3px;
+      z-index: 10;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      position: absolute;
+      box-sizing: content-box;
+      border: 3px solid rgba(239, 68, 68, 0.5);
+      animation: pulse-error 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes error-icon-line {
+      0% {
+        width: 0;
+      }
+      100% {
+        width: 29px;
+      }
+    }
+    
+    @keyframes pulse-error {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(1.05);
+      }
+    }
+    
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(1.05);
+      }
+    }
+    
+    /* Mobile Responsive Styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .header .username {
+        font-size: 1rem;
+      }
+      
+      .logout-btn {
+        position: static;
+        display: block;
+        margin: 0 auto 1.5rem;
+        width: fit-content;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.85rem;
+      }
+      
+      .card {
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+      
+      .scanner-title {
+        font-size: 1.25rem;
+        margin-bottom: 1.25rem;
+      }
+      
+      .video-container {
+        max-width: 90%;
+        border-width: 3px;
+        margin-bottom: 1.5rem;
+      }
+      
+      .scanner-frame {
+        width: 96%;
+        height: 96%;
+      }
+      
+      .scanner-frame::before,
+      .scanner-frame::after,
+      .corner-tl,
+      .corner-tr {
+        width: 50px;
+        height: 50px;
+        border-width: 5px;
+      }
+      
+      .scanner-frame::before {
+        top: -5px;
+        left: -5px;
+      }
+      
+      .scanner-frame::after {
+        bottom: -5px;
+        right: -5px;
+      }
+      
+      .corner-tl {
+        top: -5px;
+        right: -5px;
+      }
+      
+      .corner-tr {
+        bottom: -5px;
+        left: -5px;
+      }
+      
+      .result-container {
+        min-height: 70px;
+        padding: 1.25rem;
+      }
+      
+      .result-text {
+        font-size: 1rem;
+      }
+      
+      .success-checkmark,
+      .error-checkmark {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .check-icon,
+      .error-icon {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .icon-circle,
+      .error-circle {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .icon-line.line-tip {
+        top: 23px;
+        left: 7px;
+        width: 13px;
+      }
+      
+      .icon-line.line-long {
+        top: 19px;
+        right: 4px;
+        width: 23px;
+      }
+      
+      .error-icon::before,
+      .error-icon::after {
+        width: 23px;
+        top: 18px;
+        left: 8px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 0.75rem;
+      }
+      
+      .header {
+        margin-bottom: 1.5rem;
+      }
+      
+      .header h1 {
+        font-size: 1.35rem;
+      }
+      
+      .header .username {
+        font-size: 0.95rem;
+      }
+      
+      .card {
+        padding: 1.25rem;
+      }
+      
+      .scanner-title {
+        font-size: 1.15rem;
+      }
+      
+      .video-container {
+        max-width: 95%;
+      }
+      
+      .result-text {
+        font-size: 0.95rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Scanner — {{ request.user.username }}</h1>
-  <video id="video" autoplay></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <div id="result">Ready to scan</div>
+  <div class="container">
+    {% if request.META.HTTP_REFERER and 'admin-dashboard' in request.META.HTTP_REFERER %}
+    <a href="{% url 'admin_dashboard' %}" class="logout-btn">← Back to Dashboard</a>
+    {% else %}
+    <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+    {% endif %}
+    
+    <div class="header">
+      <h1>Scanner Portal</h1>
+      <div class="username">{{ request.user.username }}</div>
+    </div>
+    
+    <div class="card">
+      <h2 class="scanner-title">QR Code Scanner</h2>
+      
+      <div class="video-container">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="scanner-overlay">
+          <div class="scanner-frame">
+            <div class="scan-line"></div>
+            <div class="corner-tl"></div>
+            <div class="corner-tr"></div>
+          </div>
+        </div>
+      </div>
+      
+      <canvas id="canvas"></canvas>
+      
+      <div id="result" class="result-container">
+        <div class="result-text result-ready pulse">📷 Ready to scan</div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script>
@@ -19,27 +660,254 @@
     const ctx = canvas.getContext('2d');
     const result = document.getElementById('result');
     let scanning = true;
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      .then(stream => { video.srcObject = stream; video.play(); })
-      .catch(e => { result.innerText = 'Camera error: '+e; });
-
+    
+    // Show result container on load
+    setTimeout(() => result.classList.add('show'), 100);
+    
+    // Improved camera access with HTTP support
+    async function startCamera() {
+      console.log('Attempting to start camera...');
+      console.log('User agent:', navigator.userAgent);
+      console.log('Protocol:', window.location.protocol);
+      console.log('Hostname:', window.location.hostname);
+      
+      // Check if we're on localhost or HTTP
+      const isLocalhost = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.hostname === '[::1]' ||
+                         window.location.hostname.endsWith('.local');
+      
+      const isHTTP = window.location.protocol === 'http:';
+      const isHTTPS = window.location.protocol === 'https:';
+      
+      console.log('Is localhost:', isLocalhost);
+      console.log('Is HTTP:', isHTTP);
+      console.log('Is HTTPS:', isHTTPS);
+      
+      // Check if mediaDevices is available
+      if (!navigator.mediaDevices) {
+        console.error('navigator.mediaDevices not available');
+        
+        // Try legacy API for HTTP fallback
+        if (isHTTP && !isLocalhost) {
+          result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">Camera requires HTTPS or localhost. Current: ' + window.location.protocol + '//' + window.location.hostname + '</div>';
+          
+          // Try to suggest HTTPS URL
+          if (window.location.port) {
+            result.innerHTML += '<br><small>Try: https://' + window.location.hostname + ':' + window.location.port + window.location.pathname + '</small>';
+          }
+        } else {
+          result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">Camera not supported on this browser.</div>';
+        }
+        return;
+      }
+      
+      if (!navigator.mediaDevices.getUserMedia) {
+        console.error('getUserMedia not supported');
+        result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">getUserMedia not supported on this browser.</div>';
+        return;
+      }
+      
+      try {
+        // List available devices for debugging
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videoDevices = devices.filter(device => device.kind === 'videoinput');
+          console.log('Available video devices:', videoDevices.length);
+          videoDevices.forEach((device, i) => {
+            console.log(`Device ${i}:`, device.label || 'Unknown', device.deviceId);
+          });
+        } catch (enumErr) {
+          console.warn('Could not enumerate devices:', enumErr);
+        }
+        
+        let stream = null;
+        
+        // Mobile-specific constraints first
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        console.log('Is mobile:', isMobile);
+        
+        const constraints = isMobile ? [
+          // Mobile: Try back camera with explicit constraints
+          { 
+            video: { 
+              facingMode: { exact: 'environment' },
+              width: { min: 640, ideal: 1280, max: 1920 },
+              height: { min: 480, ideal: 720, max: 1080 }
+            },
+            audio: false
+          },
+          // Mobile: Try back camera with ideal
+          { 
+            video: { 
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            },
+            audio: false
+          },
+          // Mobile: Try back camera simple
+          { video: { facingMode: 'environment' }, audio: false },
+          // Mobile: Try any camera
+          { video: { width: { ideal: 1280 } }, audio: false },
+          { video: true, audio: false }
+        ] : [
+          // Desktop: Standard constraints
+          { 
+            video: { 
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            },
+            audio: false
+          },
+          { video: true, audio: false }
+        ];
+        
+        for (let i = 0; i < constraints.length; i++) {
+          try {
+            console.log(`Trying constraint ${i + 1}/${constraints.length}:`, JSON.stringify(constraints[i]));
+            stream = await navigator.mediaDevices.getUserMedia(constraints[i]);
+            console.log('✓ Camera stream obtained with constraint', i + 1);
+            console.log('Stream tracks:', stream.getVideoTracks().map(t => ({
+              label: t.label,
+              settings: t.getSettings()
+            })));
+            break;
+          } catch (err) {
+            console.error(`✗ Constraint ${i + 1} failed:`, err.name, err.message);
+            if (i === constraints.length - 1) throw err;
+          }
+        }
+        
+        if (!stream) {
+          throw new Error('Failed to obtain camera stream with all constraints');
+        }
+        
+        // Set video source
+        video.srcObject = stream;
+        console.log('Video srcObject set');
+        
+        // Force attributes
+        video.setAttribute('autoplay', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('muted', '');
+        
+        // Wait for video to be ready with better handling
+        video.onloadedmetadata = () => {
+          console.log('Video metadata loaded:', video.videoWidth, 'x', video.videoHeight);
+        };
+        
+        video.onloadeddata = () => {
+          console.log('Video data loaded');
+        };
+        
+        video.oncanplay = () => {
+          console.log('Video can play');
+        };
+        
+        try {
+          await video.play();
+          console.log('✓ Video playing successfully');
+        } catch (playErr) {
+          console.error('Play error:', playErr);
+          // Try again with user interaction fallback
+          video.play().catch(e => console.error('Second play attempt failed:', e));
+        }
+        
+        // Wait a bit for video to stabilize
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Verify video is actually playing
+        if (video.readyState >= 2) {
+          console.log('Video ready state OK:', video.readyState);
+          // Start scanning
+          requestAnimationFrame(tick);
+        } else {
+          console.warn('Video not ready, waiting...');
+          setTimeout(() => requestAnimationFrame(tick), 1000);
+        }
+        
+      } catch (e) {
+        console.error('❌ Camera error:', e);
+        console.error('Error name:', e.name);
+        console.error('Error message:', e.message);
+        console.error('Error stack:', e.stack);
+        
+        let errorMessage = 'Camera access failed';
+        
+        if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+          errorMessage = 'Camera permission denied. Please allow camera access and reload the page.';
+        } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
+          errorMessage = 'No camera found. Please check your device has a camera.';
+        } else if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
+          errorMessage = 'Camera is in use by another app. Please close other apps and try again.';
+        } else if (e.name === 'OverconstrainedError' || e.name === 'ConstraintNotSatisfiedError') {
+          errorMessage = 'Camera constraints not satisfied. Trying simpler settings...';
+          // Try one more time with absolute minimal constraints
+          setTimeout(() => {
+            navigator.mediaDevices.getUserMedia({ video: true })
+              .then(s => {
+                video.srcObject = s;
+                video.play();
+                requestAnimationFrame(tick);
+              })
+              .catch(err => console.error('Final attempt failed:', err));
+          }, 1000);
+          return;
+        } else if (e.name === 'TypeError') {
+          errorMessage = 'Camera access error. ';
+          if (isHTTP && !isLocalhost) {
+            errorMessage += 'You must use HTTPS (not HTTP) or localhost. Current: ' + window.location.protocol;
+          } else {
+            errorMessage += 'Please check your browser settings.';
+          }
+        } else if (e.name === 'SecurityError') {
+          errorMessage = 'Security error. ';
+          if (isHTTP && !isLocalhost) {
+            errorMessage += 'Camera requires HTTPS or localhost.';
+          } else {
+            errorMessage += 'Please check your browser permissions.';
+          }
+        }
+        
+        result.innerHTML = `<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">${errorMessage}</div>`;
+      }
+    }
+    
+    startCamera();
+    
     function tick() {
-      if (video.readyState === video.HAVE_ENOUGH_DATA && scanning) {
+      if (!scanning) return;
+      
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-        const code = jsQR(imgData.data, imgData.width, imgData.height);
-        if (code) {
-          scanning = false;
-          result.innerText = 'Scanned — sending to server...';
-          sendToken(code.data);
+        
+        if (canvas.width > 0 && canvas.height > 0) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          
+          try {
+            const code = jsQR(imgData.data, imgData.width, imgData.height, {
+              inversionAttempts: "dontInvert",
+            });
+            
+            if (code) {
+              console.log('QR Code detected:', code.data);
+              scanning = false;
+              result.innerHTML = '<div class="result-text result-scanning">📡 Sending to server...</div>';
+              sendToken(code.data);
+              return;
+            }
+          } catch (err) {
+            console.error('jsQR error:', err);
+          }
         }
       }
-      if (scanning) requestAnimationFrame(tick);
+      
+      requestAnimationFrame(tick);
     }
-    requestAnimationFrame(tick);
-
+    
     async function sendToken(token) {
       try {
         const resp = await fetch("{% url 'scan_endpoint' %}", {
@@ -52,17 +920,46 @@
         });
         const data = await resp.json();
         if (data.ok) {
-          result.innerText = '✅ ' + (data.message || 'Checked in');
+          result.innerHTML = `
+            <div class="success-checkmark">
+              <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
+              </div>
+            </div>
+            <div class="result-text result-success">${data.message || 'Checked in successfully!'}</div>
+          `;
         } else {
-          result.innerText = '❌ ' + (data.error || 'Error');
+          result.innerHTML = `
+            <div class="error-checkmark">
+              <div class="error-icon">
+                <span class="error-circle"></span>
+              </div>
+            </div>
+            <div class="result-text result-error">${data.error || 'Scan error'}</div>
+          `;
         }
       } catch (e) {
-        result.innerText = 'Network error: ' + e;
+        console.error('Network error:', e);
+        result.innerHTML = `
+          <div class="error-checkmark">
+            <div class="error-icon">
+              <span class="error-circle"></span>
+            </div>
+          </div>
+          <div class="result-text result-error">Network error: ${e.message}</div>
+        `;
       }
       // allow scanning again after 3s
-      setTimeout(() => { scanning = true; requestAnimationFrame(tick); }, 3000);
+      setTimeout(() => { 
+        scanning = true; 
+        result.innerHTML = '<div class="result-text result-ready pulse">📷 Ready to scan</div>';
+        requestAnimationFrame(tick); 
+      }, 3000);
     }
-
+    
     function getCookie(name) {
       const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
       return v ? v.pop() : '';

@@ -9,7 +9,7 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 def is_scanner_or_admin(user):
-    return user.is_authenticated and (user.is_scanner() or user.is_admin())
+    return user.is_authenticated and (user.role == 'scanner' or user.role == 'admin')
 
 @require_POST
 @login_required
