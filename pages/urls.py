@@ -22,5 +22,8 @@ urlpatterns = [
     path('events/<int:event_id>/edit/', views.event_edit, name='event_edit'),
     path('events/<int:event_id>/delete/', views.event_delete, name='event_delete'),
     path('events/<int:event_id>/assign/', views.event_assign_users, name='event_assign_users'),
+    path('import-users-file/', views.import_users_file, name='import_users_file'),
+    path('import-url-file/', views.import_users_url, name='import_users_url'),
+    path('import-url-file/', views.import_url_file, name='import_url_file'),
 
 ]

@@ -305,6 +305,147 @@
     border: 2px solid #059669;
   }
   
+  /* Penalties Modal Styles */
+  .penalties-list {
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+  }
+  
+  .penalty-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .penalty-item[data-status="warning"] {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 6px solid #f59e0b;
+  }
+  
+  .penalty-item[data-status="banned"] {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-left: 6px solid #dc2626;
+  }
+  
+  .penalty-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+  }
+  
+  .card-icon-large {
+    width: 40px;
+    height: 60px;
+    border-radius: 4px;
+    display: inline-block;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: rotate(-8deg);
+  }
+  
+  .card-icon-large.yellow-card {
+    background: #fbbf24;
+    border: 3px solid #d97706;
+  }
+  
+  .card-icon-large.red-card {
+    background: #ef4444;
+    border: 3px solid #b91c1c;
+  }
+  
+  .penalty-username {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  
+  .penalty-actions-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .penalty-btn {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+  
+  .penalty-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+  
+  .penalty-btn-add {
+    background: #f59e0b;
+    color: white;
+  }
+  
+  .penalty-btn-add:hover {
+    background: #d97706;
+  }
+  
+  .penalty-btn-reduce {
+    background: #3b82f6;
+    color: white;
+  }
+  
+  .penalty-btn-reduce:hover {
+    background: #2563eb;
+  }
+  
+  .penalty-btn-pardon {
+    background: #10b981;
+    color: white;
+  }
+  
+  .penalty-btn-pardon:hover {
+    background: #059669;
+  }
+  
+  .penalty-btn-ban {
+    background: #ef4444;
+    color: white;
+  }
+  
+  .penalty-btn-ban:hover {
+    background: #dc2626;
+  }
+  
+  .penalties-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .penalties-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .penalties-list::-webkit-scrollbar-thumb {
+    background: #ef4444;
+    border-radius: 10px;
+  }
+  
+  .penalties-list::-webkit-scrollbar-thumb:hover {
+    background: #dc2626;
+  }
+  
   /* Event List Container with Scrollable Wrapper */
   .event-list-wrapper {
     max-height: 600px;
@@ -577,6 +718,208 @@
     color: #374151;
   }
   
+  /* Import Modal Styles */
+  .import-tab {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.95rem;
+  }
+  
+  .import-tab:hover {
+    color: #667eea;
+  }
+  
+  .import-tab.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+  }
+  
+  .import-tab-content {
+    display: none;
+  }
+  
+  .import-tab-content.active {
+    display: block;
+  }
+  
+  .upload-area {
+    border: 3px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: #f9fafb;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  
+  .upload-area:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+  }
+  
+  .upload-area.drag-over {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    transform: scale(1.02);
+  }
+  
+  .btn-browse {
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+  
+  .btn-browse:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  }
+  
+  /* Success Animation Modal */
+  .success-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .success-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .success-content {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.4s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .success-checkmark {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #10b981;
+    stroke-miterlimit: 10;
+    box-shadow: inset 0 0 0 #10b981;
+    animation: fillSuccess 0.4s ease-in-out 0.4s forwards, scaleSuccess 0.3s ease-in-out 0.9s both;
+  }
+  
+  .success-checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #10b981;
+    fill: none;
+    animation: strokeSuccess 0.3s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+  
+  .success-checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: strokeSuccess 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+  }
+  
+  @keyframes strokeSuccess {
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  
+  @keyframes scaleSuccess {
+    0%, 100% {
+      transform: none;
+    }
+    50% {
+      transform: scale3d(1.1, 1.1, 1);
+    }
+  }
+  
+  @keyframes fillSuccess {
+    100% {
+      box-shadow: inset 0 0 0 2.5px #10b981;
+    }
+  }
+  
+  .success-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 0.5rem;
+  }
+  
+  .success-message {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+  }
+  
+  .success-close-btn {
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  }
+  
+  .success-close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+  }
+  
   @media (max-width: 768px) {
     body {
       padding: 1rem;
@@ -629,6 +972,21 @@
       width: 95%;
       padding: 1.5rem;
     }
+    
+    .penalty-item {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    
+    .penalty-actions-group {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .penalty-btn {
+      flex: 1;
+    }
   }
 </style>
 </head>
@@ -659,10 +1017,20 @@
     <div class="card">
       <h2>
         <span>Users</span>
-        <a href="{% url 'user_create' %}" class="btn btn-small">
-          <span class="btn-icon">👤</span>
-          Create New User
-        </a>
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="openPenaltiesModal()" class="btn btn-small" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);">
+            <span class="btn-icon">⚠️</span>
+            View Active Penalties
+          </button>
+          <button onclick="openImportModal()" class="btn btn-small" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
+            <span class="btn-icon">📥</span>
+            Import Data...
+          </button>
+          <a href="{% url 'user_create' %}" class="btn btn-small">
+            <span class="btn-icon">👤</span>
+            Create New User
+          </a>
+        </div>
       </h2>
       <div class="table-wrapper">
         <table>
@@ -734,6 +1102,295 @@
     </div>
   </div>
   
+  <!-- Penalties Modal -->
+  <div id="penaltiesModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Active Penalties</h3>
+        <button class="close-modal" onclick="closePenaltiesModal()">&times;</button>
+      </div>
+      
+      <div class="penalties-list">
+        {% for u in users %}
+        {% if u.penalty_status != 'ok' %}
+        <div class="penalty-item" data-status="{{ u.penalty_status }}">
+          <div class="penalty-user-info">
+            <span class="card-icon-large {% if u.penalty_status == 'warning' %}yellow-card{% else %}red-card{% endif %}"></span>
+            <div class="penalty-username">{{ u.username }}</div>
+          </div>
+          <div class="penalty-actions-group">
+            <button onclick="addPenalty({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-add" title="Add Penalty">
+              ➕
+            </button>
+            <button onclick="reducePenalty({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-reduce" title="Reduce Penalty">
+              ➖
+            </button>
+            <button onclick="pardonUser({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-pardon" title="Pardon (Clear Penalty)">
+              ✓
+            </button>
+            <button onclick="banUser({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-ban" title="Ban User">
+              🚫
+            </button>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closePenaltiesModal()">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Import Data Modal -->
+  <div id="importModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Import User Data</h3>
+        <button class="close-modal" onclick="closeImportModal()">&times;</button>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <div style="margin-bottom: 2rem;">
+          <h4 style="font-weight: 600; color: #333; margin-bottom: 1rem; font-size: 1.1rem;">
+            📁 Upload Excel File
+          </h4>
+          
+          <div class="upload-area" id="uploadArea">
+            <div style="text-align: center;">
+              <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+              <p style="font-size: 1.1rem; font-weight: 600; color: #333; margin-bottom: 0.5rem;">
+                Drop your Excel file here
+              </p>
+              <p style="color: #6b7280; margin-bottom: 1rem;">
+                or
+              </p>
+              <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+              <button onclick="document.getElementById('fileInput').click(); event.stopPropagation();" class="btn-browse">
+                Browse Files
+              </button>
+              <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 1rem;">
+                Supported formats: .xlsx, .xls
+              </p>
+            </div>
+          </div>
+          
+          <div id="filePreview" style="display: none; margin-top: 1rem;">
+            <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 2rem;">📄</span>
+                <div>
+                  <div id="fileName" style="font-weight: 600; color: #333;"></div>
+                  <div id="fileSize" style="font-size: 0.875rem; color: #6b7280;"></div>
+                </div>
+              </div>
+              <button onclick="clearFile()" style="background: #ef4444; color: white; border: none; border-radius: 6px; padding: 0.5rem 1rem; cursor: pointer; font-weight: 500;">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 1rem; margin: 2rem 0;">
+          <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
+          <span style="color: #6b7280; font-weight: 500; font-size: 0.875rem;">OR</span>
+          <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
+        </div>
+        
+        <div>
+          <h4 style="font-weight: 600; color: #333; margin-bottom: 1rem; font-size: 1.1rem;">
+            🔗 Import from Google Sheets
+          </h4>
+          
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-weight: 500; color: #4b5563; margin-bottom: 0.5rem; font-size: 0.95rem;">
+              Spreadsheet URL
+            </label>
+            <input 
+              type="url" 
+              id="sheetsUrl" 
+              placeholder="https://docs.google.com/spreadsheets/d/..." 
+              style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;"
+            >
+            <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">
+              Make sure the spreadsheet is set to "Anyone with the link can view"
+            </p>
+          </div>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              Import Mode:
+            </label>
+            <select id="importMode" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="username">Username (single column)</option>
+              <option value="firstname_lastname">First Name + Last Name (two columns)</option>
+            </select>
+          </div>
+          
+          <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 4px;">
+            <p style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">📋 Expected Format:</p>
+            <ul style="color: #1e3a8a; font-size: 0.875rem; margin-left: 1.5rem;">
+              <li>First row: Column headers</li>
+              <li>Following rows: User data</li>
+              <li>You'll map columns in the next step</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeImportModal()">Cancel</button>
+        <button class="btn-save" id="startImport">
+          <span style="margin-right: 0.5rem;">📥</span>
+          Parse & Preview
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Column Mapping Modal -->
+  <div id="referenceModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Map Spreadsheet Columns</h3>
+        <button class="close-modal" onclick="closeReferenceModal()">&times;</button>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <div style="background: #dbeafe; border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+          <p style="font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">📋 Column Mapping</p>
+          <p style="color: #1e3a8a; font-size: 0.875rem;">
+            Select which columns from your spreadsheet correspond to each user field
+          </p>
+        </div>
+        
+        <div id="usernameFields" style="display: none;">
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              Username Column <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="map_username" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="">-- Select Column --</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              Password Column <span style="color: #6b7280; font-weight: 400;">(Optional)</span>
+            </label>
+            <select id="map_password_username" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="">-- No Password Column --</option>
+            </select>
+          </div>
+        </div>
+        
+        <div id="nameFields" style="display: none;">
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              First Name Column <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="map_firstname" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="">-- Select Column --</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              Last Name Column <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="map_lastname" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="">-- Select Column --</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              Password Column <span style="color: #6b7280; font-weight: 400;">(Optional)</span>
+            </label>
+            <select id="map_password_name" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="">-- No Password Column --</option>
+            </select>
+          </div>
+        </div>
+        
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 4px;">
+          <p style="font-weight: 600; color: #78350f; margin-bottom: 0.5rem;">💡 Tip:</p>
+          <p style="color: #78350f; font-size: 0.875rem;">
+            If no password column is selected, default passwords will be generated for new users
+          </p>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeReferenceModal()">Back</button>
+        <button class="btn-save" id="nextToRole">
+          <span style="margin-right: 0.5rem;">➡️</span>
+          Next: Select Role
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Role Selection Modal -->
+  <div id="roleModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Select Role for Imported Users</h3>
+        <button class="close-modal" onclick="closeRoleModal()">&times;</button>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <div style="background: #f3f4f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <p style="font-weight: 600; color: #333; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.2rem; margin-right: 0.5rem;">📊</span>
+            <span id="rowCount">0</span> users ready to import
+          </p>
+          <p style="color: #6b7280; font-size: 0.875rem;">
+            All imported users will be assigned the role you select below
+          </p>
+        </div>
+        
+        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+          Assign Role:
+        </label>
+        <select id="roleSelect" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+          <option value="member">👤 Member</option>
+          <option value="scanner">🔲 Scanner</option>
+          <option value="admin">👑 Admin</option>
+        </select>
+        
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 4px; margin-top: 1.5rem;">
+          <p style="font-weight: 600; color: #78350f; margin-bottom: 0.5rem;">⚠️ Important:</p>
+          <p style="color: #78350f; font-size: 0.875rem;">
+            This will create new users or update existing users with the selected role.
+          </p>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeRoleModal()">Cancel</button>
+        <button class="btn-save" id="finishImport">
+          <span style="margin-right: 0.5rem;">✅</span>
+          Apply Role & Save Users
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Success Animation Modal -->
+  <div id="successModal" class="success-modal">
+    <div class="success-content">
+      <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+        <circle class="success-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+        <path class="success-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+      </svg>
+      <h3 class="success-title">Success!</h3>
+      <p class="success-message" id="successMessage">Operation completed successfully</p>
+      <button class="success-close-btn" onclick="closeSuccessModal()">Continue</button>
+    </div>
+  </div>
+  
   <!-- Assign Users Modal -->
   <div id="assignModal" class="modal">
     <div class="modal-content">
@@ -772,14 +1429,382 @@
   
   <script>
     let currentEventId = null;
+    let currentImportFile = null;
+    let importedRows = [];
+    let importedColumns = [];
+    let importMode = null;
+    let columnMapping = {};
     
+    // Penalties Modal Functions
+    function openPenaltiesModal() {
+      document.getElementById('penaltiesModal').classList.add('active');
+    }
+    
+    function closePenaltiesModal() {
+      document.getElementById('penaltiesModal').classList.remove('active');
+    }
+    
+    function addPenalty(userId, username) {
+      if (confirm(`Add penalty level to ${username}?\n\nThis will increase their penalty status.`)) {
+        fetch(`/user/${userId}/add-penalty/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showSuccessModal(`Penalty added to ${username}.`);
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred');
+        });
+      }
+    }
+    
+    function reducePenalty(userId, username) {
+      if (confirm(`Reduce penalty level for ${username}?\n\nThis will decrease their penalty status by one level.`)) {
+        fetch(`/user/${userId}/reduce-penalty/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showSuccessModal(`Penalty reduced for ${username}.`);
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred');
+        });
+      }
+    }
+    
+    function pardonUser(userId, username) {
+      if (confirm(`Pardon ${username}?\n\nThis will clear all penalties and set their status to "OK".`)) {
+        fetch(`/user/${userId}/pardon/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showSuccessModal(`${username} has been pardoned!`);
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred');
+        });
+      }
+    }
+    
+    function banUser(userId, username) {
+      if (confirm(`Ban ${username}?\n\nThis will set their penalty status to BANNED (maximum penalty level).`)) {
+        fetch(`/user/${userId}/ban/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showSuccessModal(`${username} has been banned!`);
+          } else {
+            alert('Error: ' + data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred');
+        });
+      }
+    }
+    
+    // Import Modal Functions
+    function openImportModal() {
+      document.getElementById('importModal').classList.add('active');
+    }
+    
+    function closeImportModal() {
+      document.getElementById('importModal').classList.remove('active');
+      clearFile();
+      document.getElementById('sheetsUrl').value = '';
+    }
+    
+    function closeRoleModal() {
+      document.getElementById('roleModal').classList.remove('active');
+    }
+    
+    function closeReferenceModal() {
+      document.getElementById('referenceModal').classList.remove('active');
+    }
+    
+    function showSuccessModal(message) {
+      document.getElementById('successMessage').textContent = message;
+      document.getElementById('successModal').classList.add('active');
+    }
+    
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.remove('active');
+      location.reload();
+    }
+    
+    function populateReferenceModal(columns) {
+      const selects = [
+        'map_username',
+        'map_password_username',
+        'map_firstname',
+        'map_lastname',
+        'map_password_name'
+      ];
+      
+      selects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+        
+        columns.forEach(col => {
+          const option = document.createElement('option');
+          option.value = col;
+          option.textContent = col;
+          select.appendChild(option);
+        });
+      });
+      
+      if (importMode === 'username') {
+        document.getElementById('usernameFields').style.display = 'block';
+        document.getElementById('nameFields').style.display = 'none';
+      } else {
+        document.getElementById('usernameFields').style.display = 'none';
+        document.getElementById('nameFields').style.display = 'block';
+      }
+    }
+    
+    // File upload handling
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('drag-over');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('drag-over');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('drag-over');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+    
+    function handleFile(file) {
+      if (!file.name.match(/\.(xlsx|xls)$/)) {
+        alert('Please upload a valid Excel file (.xlsx or .xls)');
+        return;
+      }
+      
+      currentImportFile = file;
+      
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = formatFileSize(file.size);
+      document.getElementById('filePreview').style.display = 'block';
+      uploadArea.style.display = 'none';
+    }
+    
+    function clearFile() {
+      currentImportFile = null;
+      fileInput.value = '';
+      document.getElementById('filePreview').style.display = 'none';
+      uploadArea.style.display = 'block';
+    }
+    
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+    
+    // STEP 1: Parse the import
+    document.getElementById('startImport').onclick = () => {
+      const file = currentImportFile;
+      const url = document.getElementById('sheetsUrl').value.trim();
+      const mode = document.getElementById('importMode').value;
+      
+      let request;
+      
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('mode', mode);
+        
+        request = fetch('{% url "parse_import" %}', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: formData
+        });
+      } else if (url) {
+        if (!url.includes('docs.google.com/spreadsheets')) {
+          alert('Please enter a valid Google Sheets URL');
+          return;
+        }
+        
+        request = fetch('{% url "parse_import" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify({ 
+            url: url,
+            mode: mode
+          })
+        });
+      } else {
+        alert('Please upload a file or enter a Google Sheet URL');
+        return;
+      }
+      
+      request
+        .then(r => r.json())
+        .then(data => {
+          if (!data.success) {
+            alert('Import failed: ' + data.error);
+            return;
+          }
+          
+          window.parsedRows = data.rows;
+          window.columns = data.columns;
+          window.mode = mode;
+          
+          importedRows = data.rows;
+          importedColumns = data.columns;
+          importMode = mode;
+          
+          populateReferenceModal(data.columns);
+          
+          closeImportModal();
+          document.getElementById('referenceModal').classList.add('active');
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred during import');
+        });
+    };
+    
+    // STEP 2: Handle column mapping
+    document.getElementById('nextToRole').onclick = () => {
+      columnMapping = {};
+      
+      if (window.mode === 'username') {
+        const username = document.getElementById('map_username').value;
+        if (!username) {
+          alert('Please select a username column');
+          return;
+        }
+        columnMapping.username = username;
+        columnMapping.password = document.getElementById('map_password_username').value || null;
+      } else {
+        const firstname = document.getElementById('map_firstname').value;
+        const lastname = document.getElementById('map_lastname').value;
+        if (!firstname || !lastname) {
+          alert('Please select both first name and last name columns');
+          return;
+        }
+        columnMapping.firstname = firstname;
+        columnMapping.lastname = lastname;
+        columnMapping.password = document.getElementById('map_password_name').value || null;
+      }
+      
+      window.mapping = columnMapping;
+      
+      document.getElementById('rowCount').textContent = importedRows.length;
+      
+      closeReferenceModal();
+      document.getElementById('roleModal').classList.add('active');
+    };
+    
+    // STEP 3: Finalize import
+    document.getElementById('finishImport').onclick = () => {
+      const role = document.getElementById('roleSelect').value;
+      const btn = document.getElementById('finishImport');
+      const originalText = btn.innerHTML;
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span style="margin-right: 0.5rem;">⏳</span>Importing...';
+      
+      fetch('{% url "finalize_import" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+          mode: window.mode,
+          rows: window.parsedRows,
+          mapping: window.mapping,
+          role: role
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        
+        if (data.success) {
+          closeRoleModal();
+          showSuccessModal(`Successfully imported ${data.count} users with role: ${role}!`);
+        } else {
+          alert('Import failed: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        console.error('Error:', error);
+        alert('An error occurred during finalization');
+      });
+    };
+    
+    // Assign Users Modal Functions
     function openAssignModal(eventId, eventTitle) {
       currentEventId = eventId;
       document.getElementById('eventName').textContent = eventTitle;
       document.getElementById('assignModal').classList.add('active');
       
-      // Load existing assignments (you would typically fetch this from the server)
-      // For now, we'll just reset the selections
+      // Reset selections
       document.querySelectorAll('.user-checkbox').forEach(checkbox => {
         checkbox.checked = false;
       });
@@ -787,8 +1812,40 @@
         item.classList.remove('selected');
       });
       
-      // You can make an AJAX call here to load existing assignments
-      // Example: loadExistingAssignments(eventId);
+      // Load existing assignments from the assign page endpoint
+      fetch(`/events/${eventId}/assign/`, {
+        method: 'GET',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+        .then(r => {
+          if (r.headers.get('content-type')?.includes('application/json')) {
+            return r.json();
+          }
+          // If HTML is returned, we need to parse it differently
+          return r.text().then(html => {
+            // Extract assigned user IDs from the HTML (they're in checkboxes)
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const checkedBoxes = doc.querySelectorAll('input[type="checkbox"]:checked');
+            const ids = Array.from(checkedBoxes).map(cb => cb.value);
+            return { success: true, assigned_user_ids: ids };
+          });
+        })
+        .then(data => {
+          if (data.success && data.assigned_user_ids) {
+            data.assigned_user_ids.forEach(userId => {
+              const checkbox = document.querySelector(`.user-checkbox[value="${userId}"]`);
+              if (checkbox) {
+                checkbox.checked = true;
+                checkbox.closest('.user-item').classList.add('selected');
+              }
+            });
+            updateSelectAllCheckbox();
+          }
+        })
+        .catch(error => console.error('Error loading assigned users:', error));
     }
     
     function closeAssignModal() {
@@ -855,10 +1912,7 @@
       const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked'))
         .map(checkbox => checkbox.value);
       
-      // Here you would make an AJAX call to save the assignments
-      // Example using fetch:
-      /*
-      fetch(`{% url 'event_assign_users' 0 %}`.replace('0', currentEventId), {
+      fetch(`/events/${currentEventId}/assign/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -866,31 +1920,47 @@
         },
         body: JSON.stringify({ user_ids: selectedUsers })
       })
-      .then(response => response.json())
+      .then(r => r.json())
       .then(data => {
         if (data.success) {
-          alert('Users assigned successfully!');
           closeAssignModal();
+          showSuccessModal(`Successfully assigned ${selectedUsers.length} users to the event!`);
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
         }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while assigning users');
       });
-      */
-      
-      // For now, just show what would be sent
-      console.log('Event ID:', currentEventId);
-      console.log('Selected Users:', selectedUsers);
-      alert(`Assigning ${selectedUsers.length} users to event ${currentEventId}`);
-      closeAssignModal();
     }
     
     // Close modal when clicking outside
     window.onclick = function(event) {
-      const modal = document.getElementById('assignModal');
-      if (event.target === modal) {
+      const importModal = document.getElementById('importModal');
+      const penaltiesModal = document.getElementById('penaltiesModal');
+      const roleModal = document.getElementById('roleModal');
+      const referenceModal = document.getElementById('referenceModal');
+      const assignModal = document.getElementById('assignModal');
+      
+      if (event.target === importModal) {
+        closeImportModal();
+      }
+      if (event.target === penaltiesModal) {
+        closePenaltiesModal();
+      }
+      if (event.target === roleModal) {
+        closeRoleModal();
+      }
+      if (event.target === referenceModal) {
+        closeReferenceModal();
+      }
+      if (event.target === assignModal) {
         closeAssignModal();
       }
     }
     
-    // Listen to checkbox changes to update UI
+    // Listen to checkbox changes
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.user-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {

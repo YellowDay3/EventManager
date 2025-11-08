@@ -284,33 +284,45 @@ def event_delete(request, event_id):
 @user_passes_test(is_admin)
 def event_assign_users(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-
-    # POST = save assignment
+    
     if request.method == "POST":
         try:
             data = json.loads(request.body)
             user_ids = data.get("user_ids", [])
-
-            # Optional capacity control
             if event.max_attendees and len(user_ids) > event.max_attendees:
                 return JsonResponse({
                     "success": False,
                     "error": f"Max attendees is {event.max_attendees}"
                 }, status=400)
-
             event.assigned_users.set(user_ids)
             event.save()
             return JsonResponse({"success": True})
-
         except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=400)
-
-    # GET = show UI
+    
+    # GET request
     users = User.objects.all()
     assigned_user_ids = list(event.assigned_users.values_list("id", flat=True))
-
+    
+    # If AJAX request, return JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            "success": True,
+            "assigned_user_ids": assigned_user_ids
+        })
+    
+    # Otherwise return HTML template
     return render(request, "event_assign_users.html", {
         "event": event,
         "users": users,
         "assigned_user_ids": assigned_user_ids,
     })
+
+def import_users_file(request):
+    print("import!")
+
+def import_users_url(request):
+    print("import!")
+
+def import_url_file(request):
+    print("import!")

@@ -7,6 +7,11 @@ from .utils import decode_qr_token
 from .models import Event, User, Attendance, Penalty
 from django.db import transaction
 from django.contrib.auth.decorators import login_required, user_passes_test
+import pandas as pd
+from io import StringIO
+import requests
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import get_user_model
 
 def is_scanner_or_admin(user):
     return user.is_authenticated and (user.role == 'scanner' or user.role == 'admin')
@@ -94,3 +99,98 @@ def check_status(request):
     checked = Attendance.objects.filter(event=event, user=user).exists()
     banned = user.penalty_status == 'banned' or not user.is_active_member
     return JsonResponse({'ok': True, 'checked_in': checked, 'banned': banned})
+
+User = get_user_model()
+
+
+@csrf_exempt
+def parse_import(request):
+    import json
+    import pandas as pd
+    from io import StringIO
+    import requests
+
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Invalid method"}, status=400)
+
+    # FILE MODE
+    if "file" in request.FILES:
+        df = pd.read_excel(request.FILES["file"])
+
+    # URL MODE
+    else:
+        data = json.loads(request.body)
+        url = data.get("url")
+
+        try:
+            sheet_id = url.split("/d/")[1].split("/")[0]
+            csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+            text = requests.get(csv_url).text
+            df = pd.read_csv(StringIO(text))
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+
+    # ✅ columns to help user create reference mapping
+    columns = list(df.columns)
+
+    # ✅ rows to use later in finalize
+    rows = df.to_dict(orient="records")
+
+    return JsonResponse({
+        "success": True,
+        "columns": columns,
+        "rows": rows
+    })
+
+@csrf_exempt
+def finalize_import(request):
+    import json
+    User = get_user_model()
+
+    data = json.loads(request.body)
+
+    rows = data["rows"]
+    mode = data["mode"]              # "username" or "firstname_lastname"
+    mapping = data["mapping"]
+    role = data["role"]
+    default_penalty = 0
+    default_penalty2 = "ok"
+
+    count = 0
+
+    for row in rows:
+        
+        # ✅ MODE A — username directly from spreadsheet
+        if mode == "username":
+            username = row.get(mapping["username"], "")
+            password = row.get(mapping.get("password"), None)
+
+        # ✅ MODE B — build username from firstname + lastname
+        else:
+            firstname = row.get(mapping["firstname"], "")
+            lastname = row.get(mapping["lastname"], "")
+            password = row.get(mapping.get("password"), None)
+
+            # ✅ Build username WITHOUT saving firstname/lastname to DB
+            username = f"{firstname}_{lastname}".lower().replace(" ", "")
+
+        if not username:
+            continue
+
+        user, created = User.objects.update_or_create(
+            username=username,
+            defaults={
+                "role": role,
+                "penalty_count": default_penalty,
+                "penalty_status": default_penalty2,
+            }
+        )
+
+        if password:
+            user.set_password(password)
+            user.save()
+
+        count += 1
+
+    return JsonResponse({"success": True, "count": count})
+
