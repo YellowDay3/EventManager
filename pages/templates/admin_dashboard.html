@@ -210,15 +210,13 @@
     background: #2563eb;
   }
   
-  .actions a:nth-child(2),
   .actions button:nth-child(2) {
-    background: #8b5cf6;
+    background: #f59e0b;
     color: white;
   }
   
-  .actions a:nth-child(2):hover,
   .actions button:nth-child(2):hover {
-    background: #7c3aed;
+    background: #d97706;
   }
   
   .actions a:nth-child(3),
@@ -323,7 +321,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
   
-  .penalty-item[data-status="warning"] {
+  .penalty-item[data-status="warned"] {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     border-left: 6px solid #f59e0b;
   }
@@ -463,7 +461,7 @@
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     border-radius: 8px;
     border-left: 4px solid #667eea;
-    transition: transform 0.2s;
+    transition: transform 0.2s, opacity 0.3s;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1052,8 +1050,8 @@
                 </span>
               </td>
               <td>
-                <span class="penalty-badge {% if u.penalty_status == 'banned' %}penalty-banned{% elif u.penalty_status == 'warning' %}penalty-warning{% else %}penalty-ok{% endif %}">
-                  {% if u.penalty_status == 'warning' %}
+                <span class="penalty-badge {% if u.penalty_status == 'banned' %}penalty-banned{% elif u.penalty_status == 'warned' %}penalty-warning{% else %}penalty-ok{% endif %}">
+                  {% if u.penalty_status == 'warned' %}
                     <span class="card-icon yellow-card"></span>
                   {% elif u.penalty_status == 'banned' %}
                     <span class="card-icon red-card"></span>
@@ -1065,6 +1063,7 @@
               </td>
               <td class="actions">
                 <a href="{% url 'user_edit' u.id %}">Edit</a>
+                <button onclick="openReasonModal('add', {{ u.id }}, '{{ u.username|escapejs }}')" style="background: #f59e0b; color: white;">Add Penalty</button>
                 <a href="{% url 'user_delete' u.id %}">Delete</a>
               </td>
             </tr>
@@ -1100,6 +1099,49 @@
         </ul>
       </div>
     </div>
+    
+    <div class="card">
+      <h2>
+        <span>Penalty History</span>
+      </h2>
+      <div class="event-list-wrapper">
+        <ul class="event-list" id="penaltyHistoryList">
+          {% for penalty in penalty_history %}
+          <li class="event-item" data-penalty-id="{{ penalty.id }}">
+            <div class="event-info">
+              <div class="event-title">
+                <span style="font-weight: 700; color: #667eea;">{{ penalty.user.username }}</span>
+                <span style="margin: 0 0.5rem; color: #9ca3af;">•</span>
+                <span style="{% if penalty.action == 'add' %}color: #f59e0b;{% elif penalty.action == 'reduce' %}color: #3b82f6;{% elif penalty.action == 'pardon' %}color: #10b981;{% elif penalty.action == 'ban' %}color: #ef4444;{% endif %} font-weight: 600;">
+                  {% if penalty.action == 'add' %}➕ Penalty Added
+                  {% elif penalty.action == 'reduce' %}➖ Penalty Reduced
+                  {% elif penalty.action == 'pardon' %}✓ Pardoned
+                  {% elif penalty.action == 'ban' %}🚫 Banned
+                  {% endif %}
+                </span>
+              </div>
+              <div class="event-time">
+                {{ penalty.timestamp|date:"M d, Y g:i A" }}
+                {% if penalty.reason %}
+                <span style="margin: 0 0.5rem; color: #9ca3af;">•</span>
+                <span style="font-style: italic; color: #6b7280;">{{ penalty.reason }}</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="event-actions">
+              <button onclick="revertPenalty({{ penalty.id }}, '{{ penalty.user.username|escapejs }}', '{{ penalty.action }}')" style="background: #8b5cf6; color: white;">
+                🔄 Revert
+              </button>
+            </div>
+          </li>
+          {% empty %}
+          <li style="padding: 2rem; text-align: center; color: #6b7280;">
+            No penalty history yet.
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
   
   <!-- Penalties Modal -->
@@ -1113,22 +1155,22 @@
       <div class="penalties-list">
         {% for u in users %}
         {% if u.penalty_status != 'ok' %}
-        <div class="penalty-item" data-status="{{ u.penalty_status }}">
+        <div class="penalty-item" data-status="{{ u.penalty_status }}" data-user-id="{{ u.id }}">
           <div class="penalty-user-info">
-            <span class="card-icon-large {% if u.penalty_status == 'warning' %}yellow-card{% else %}red-card{% endif %}"></span>
+            <span class="card-icon-large {% if u.penalty_status == 'warned' %}yellow-card{% else %}red-card{% endif %}"></span>
             <div class="penalty-username">{{ u.username }}</div>
           </div>
           <div class="penalty-actions-group">
-            <button onclick="addPenalty({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-add" title="Add Penalty">
+            <button onclick="openReasonModal('add', {{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-add" title="Add Penalty">
               ➕
             </button>
-            <button onclick="reducePenalty({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-reduce" title="Reduce Penalty">
+            <button onclick="openReasonModal('reduce', {{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-reduce" title="Reduce Penalty">
               ➖
             </button>
-            <button onclick="pardonUser({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-pardon" title="Pardon (Clear Penalty)">
+            <button onclick="openReasonModal('pardon', {{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-pardon" title="Pardon (Clear Penalty)">
               ✓
             </button>
-            <button onclick="banUser({{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-ban" title="Ban User">
+            <button onclick="openReasonModal('ban', {{ u.id }}, '{{ u.username|escapejs }}')" class="penalty-btn penalty-btn-ban" title="Ban User">
               🚫
             </button>
           </div>
@@ -1139,6 +1181,49 @@
       
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closePenaltiesModal()">Close</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Reason Modal -->
+  <div id="reasonModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Reason for Penalty Change</h3>
+        <button class="close-modal" onclick="closeReasonModal()">&times;</button>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <p style="font-weight: 600; color: #333; margin-bottom: 0.5rem;">
+            <span style="font-size: 1.2rem; margin-right: 0.5rem;" id="reasonActionIcon">⚠️</span>
+            <span id="reasonActionText">Action</span> for <span id="reasonUsername" style="color: #667eea;"></span>
+          </p>
+        </div>
+        
+        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+          Reason <span style="color: #ef4444;">*</span>
+        </label>
+        <textarea 
+          id="reasonText" 
+          placeholder="Enter the reason for this penalty change..."
+          style="width: 100%; min-height: 120px; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical;"
+        ></textarea>
+        
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 4px; margin-top: 1rem;">
+          <p style="font-weight: 600; color: #78350f; margin-bottom: 0.5rem;">📝 Note:</p>
+          <p style="color: #78350f; font-size: 0.875rem;">
+            This reason will be logged and can be reviewed later. Please be clear and professional.
+          </p>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeReasonModal()">Cancel</button>
+        <button class="btn-save" id="submitPenaltyBtn" onclick="submitPenalty()">
+          <span style="margin-right: 0.5rem;">✅</span>
+          Confirm Action
+        </button>
       </div>
     </div>
   </div>
@@ -1434,6 +1519,9 @@
     let importedColumns = [];
     let importMode = null;
     let columnMapping = {};
+    let currentAction = null;
+    let currentUserId = null;
+    let currentUsername = null;
     
     // Penalties Modal Functions
     function openPenaltiesModal() {
@@ -1444,95 +1532,138 @@
       document.getElementById('penaltiesModal').classList.remove('active');
     }
     
-    function addPenalty(userId, username) {
-      if (confirm(`Add penalty level to ${username}?\n\nThis will increase their penalty status.`)) {
-        fetch(`/user/${userId}/add-penalty/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            showSuccessModal(`Penalty added to ${username}.`);
-          } else {
-            alert('Error: ' + data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred');
-        });
-      }
+    // Reason Modal Functions
+    function openReasonModal(action, userId, username) {
+      currentAction = action;
+      currentUserId = userId;
+      currentUsername = username;
+      
+      // Update modal UI based on action
+      const actionTexts = {
+        'add': { text: 'Add Penalty', icon: '➕', color: '#f59e0b' },
+        'reduce': { text: 'Reduce Penalty', icon: '➖', color: '#3b82f6' },
+        'pardon': { text: 'Pardon User', icon: '✓', color: '#10b981' },
+        'ban': { text: 'Ban User', icon: '🚫', color: '#ef4444' }
+      };
+      
+      const actionInfo = actionTexts[action];
+      document.getElementById('reasonActionIcon').textContent = actionInfo.icon;
+      document.getElementById('reasonActionText').textContent = actionInfo.text;
+      document.getElementById('reasonUsername').textContent = username;
+      
+      document.getElementById('reasonModal').classList.add('active');
+      document.getElementById('reasonText').focus();
     }
     
-    function reducePenalty(userId, username) {
-      if (confirm(`Reduce penalty level for ${username}?\n\nThis will decrease their penalty status by one level.`)) {
-        fetch(`/user/${userId}/reduce-penalty/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            showSuccessModal(`Penalty reduced for ${username}.`);
-          } else {
-            alert('Error: ' + data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred');
-        });
-      }
+    function closeReasonModal() {
+      document.getElementById('reasonModal').classList.remove('active');
+      document.getElementById('reasonText').value = '';
+      currentAction = null;
+      currentUserId = null;
+      currentUsername = null;
     }
     
-    function pardonUser(userId, username) {
-      if (confirm(`Pardon ${username}?\n\nThis will clear all penalties and set their status to "OK".`)) {
-        fetch(`/user/${userId}/pardon/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            showSuccessModal(`${username} has been pardoned!`);
-          } else {
-            alert('Error: ' + data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred');
-        });
+    function submitPenalty() {
+      const reason = document.getElementById('reasonText').value.trim();
+      
+      if (!reason) {
+        alert('Please enter a reason for this penalty change.');
+        return;
       }
+      
+      const btn = document.getElementById('submitPenaltyBtn');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span style="margin-right: 0.5rem;">⏳</span>Processing...';
+      
+      fetch(`/penalty/${currentAction}/${currentUserId}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ reason: reason })
+      })
+      .then(response => response.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        
+        if (data.success) {
+          closeReasonModal();
+          
+          // Update UI if penalty_status is returned
+          if (data.penalty_status) {
+            updateUserPenaltyUI(currentUserId, data.penalty_status);
+          }
+          
+          const actionMessages = {
+            'add': `Penalty added to ${currentUsername}`,
+            'reduce': `Penalty reduced for ${currentUsername}`,
+            'pardon': `${currentUsername} has been pardoned`,
+            'ban': `${currentUsername} has been banned`
+          };
+          
+          showSuccessModal(actionMessages[currentAction] || 'Penalty action completed successfully!');
+        } else {
+          alert('Error: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        console.error('Error:', error);
+        alert('An error occurred while processing the penalty change.');
+      });
     }
     
-    function banUser(userId, username) {
-      if (confirm(`Ban ${username}?\n\nThis will set their penalty status to BANNED (maximum penalty level).`)) {
-        fetch(`/user/${userId}/ban/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
+    function updateUserPenaltyUI(userId, newStatus) {
+      // Update the penalty item in the penalties modal
+      const penaltyItem = document.querySelector(`.penalty-item[data-user-id="${userId}"]`);
+      if (penaltyItem) {
+        penaltyItem.setAttribute('data-status', newStatus);
+        
+        const cardIcon = penaltyItem.querySelector('.card-icon-large');
+        cardIcon.className = 'card-icon-large';
+        
+        if (newStatus === 'warning') {
+          cardIcon.classList.add('yellow-card');
+        } else if (newStatus === 'banned') {
+          cardIcon.classList.add('red-card');
+        }
+        
+        // If status is 'ok', hide the penalty item from active penalties
+        if (newStatus === 'ok') {
+          penaltyItem.style.display = 'none';
+        }
+      }
+      
+      // Update the main users table
+      const userRow = document.querySelector(`tr:has(a[href*="user_edit/${userId}"])`);
+      if (userRow) {
+        const penaltyCell = userRow.querySelector('td:nth-child(3)');
+        if (penaltyCell) {
+          let badgeClass = 'penalty-ok';
+          let cardClass = 'green-card';
+          let statusText = 'ok';
+          
+          if (newStatus === 'warning') {
+            badgeClass = 'penalty-warning';
+            cardClass = 'yellow-card';
+            statusText = 'warning';
+          } else if (newStatus === 'banned') {
+            badgeClass = 'penalty-banned';
+            cardClass = 'red-card';
+            statusText = 'banned';
           }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            showSuccessModal(`${username} has been banned!`);
-          } else {
-            alert('Error: ' + data.error);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('An error occurred');
-        });
+          
+          penaltyCell.innerHTML = `
+            <span class="penalty-badge ${badgeClass}">
+              <span class="card-icon ${cardClass}"></span>
+              ${statusText}
+            </span>
+          `;
+        }
       }
     }
     
@@ -1935,6 +2066,50 @@
       });
     }
     
+    // Revert Penalty Function
+    function revertPenalty(penaltyId, username, action) {
+      const actionMessages = {
+        'add': 'reduce the penalty for',
+        'reduce': 'add the penalty back to',
+        'pardon': 'restore the previous penalty status for',
+        'ban': 'unban'
+      };
+      
+      if (confirm(`Are you sure you want to revert this action?\n\nThis will ${actionMessages[action]} ${username}.`)) {
+        fetch(`/penalty/revert/${penaltyId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Remove the penalty item from the list
+            const penaltyItem = document.querySelector(`[data-penalty-id="${penaltyId}"]`);
+            if (penaltyItem) {
+              penaltyItem.style.opacity = '0';
+              setTimeout(() => penaltyItem.remove(), 300);
+            }
+            
+            // Update UI if penalty_status is returned
+            if (data.user_id && data.penalty_status) {
+              updateUserPenaltyUI(data.user_id, data.penalty_status);
+            }
+            
+            showSuccessModal(`Successfully reverted penalty action for ${username}!`);
+          } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while reverting the penalty.');
+        });
+      }
+    }
+    
     // Close modal when clicking outside
     window.onclick = function(event) {
       const importModal = document.getElementById('importModal');
@@ -1942,6 +2117,7 @@
       const roleModal = document.getElementById('roleModal');
       const referenceModal = document.getElementById('referenceModal');
       const assignModal = document.getElementById('assignModal');
+      const reasonModal = document.getElementById('reasonModal');
       
       if (event.target === importModal) {
         closeImportModal();
@@ -1957,6 +2133,9 @@
       }
       if (event.target === assignModal) {
         closeAssignModal();
+      }
+      if (event.target === reasonModal) {
+        closeReasonModal();
       }
     }
     

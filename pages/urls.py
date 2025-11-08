@@ -25,5 +25,9 @@ urlpatterns = [
     path('import-users-file/', views.import_users_file, name='import_users_file'),
     path('import-url-file/', views.import_users_url, name='import_users_url'),
     path('import-url-file/', views.import_url_file, name='import_url_file'),
+    path("penalty/add/<int:user_id>/", views.penalty_add),
+    path("penalty/reduce/<int:user_id>/", views.penalty_reduce),
+    path("penalty/pardon/<int:user_id>/", views.penalty_pardon),
+    path("penalty/ban/<int:user_id>/", views.penalty_ban),
 
 ]

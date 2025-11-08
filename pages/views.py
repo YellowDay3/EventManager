@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from superdb.models import User, Event
+from superdb.models import User, Event, Penalty
 from superdb.utils import make_qr_payload
 from django.contrib.auth.decorators import login_required, user_passes_test
 from superdb.forms import AdminUserForm, EventForm
@@ -198,7 +198,8 @@ def bulk_qr_zip(request, event_id):
 def admin_dashboard(request):
     users = User.objects.all().order_by('-username')
     events = Event.objects.all().order_by('-start_time')
-    return render(request, 'admin_dashboard.html', {'users': users, 'events': events})
+    penalty = Penalty.objects.all().order_by('-created_at')
+    return render(request, 'admin_dashboard.html', {'users': users, 'events': events, 'penalty': penalty})
 
 # CRUD user (admin)
 @login_required
@@ -317,6 +318,130 @@ def event_assign_users(request, event_id):
         "users": users,
         "assigned_user_ids": assigned_user_ids,
     })
+
+def compute_penalty_status(u):
+    if u.penalty_count <= 0:
+        return "ok"
+    elif u.penalty_count == 1:
+        return "warned"
+    else:
+        return "banned"
+
+@csrf_exempt
+def penalty_add(request, user_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    data = json.loads(request.body)
+    reason = data.get("reason", "").strip()
+
+    u = User.objects.get(id=user_id)
+
+    # Increase count
+    u.penalty_count += 1
+    u.penalty_status = compute_penalty_status(u)
+
+    # Auto update active flag
+    u.is_active_member = (u.penalty_status != "banned")
+
+    u.save()
+
+    # Record penalty
+    Penalty.objects.create(
+        user=u,
+        reason=reason or "No reason given",
+        admin=request.user if request.user.is_authenticated else None
+    )
+
+    return JsonResponse({
+        "success": True,
+        "penalty_count": u.penalty_count,
+        "penalty_status": u.penalty_status,
+        "is_active_member": u.is_active_member,
+    })
+
+@csrf_exempt
+def penalty_reduce(request, user_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    data = json.loads(request.body)
+    reason = data.get("reason", "").strip()
+
+    u = User.objects.get(id=user_id)
+
+    u.penalty_count -= 1
+    if u.penalty_count < 0:
+        u.penalty_count = 0
+
+    u.penalty_status = compute_penalty_status(u)
+    u.is_active_member = (u.penalty_status != "banned")
+    u.save()
+
+    # Record penalty change
+    Penalty.objects.create(
+        user=u,
+        reason=f"(REDUCED) {reason}",
+        admin=request.user if request.user.is_authenticated else None
+    )
+
+    return JsonResponse({
+        "success": True,
+        "penalty_count": u.penalty_count,
+        "penalty_status": u.penalty_status,
+        "is_active_member": u.is_active_member,
+    })
+
+@csrf_exempt
+def penalty_pardon(request, user_id):
+    data = json.loads(request.body)
+    reason = data.get("reason", "").strip()
+
+    u = User.objects.get(id=user_id)
+
+    u.penalty_count = 0
+    u.penalty_status = "ok"
+    u.is_active_member = True
+    u.save()
+
+    Penalty.objects.create(
+        user=u,
+        reason=f"(PARDON) {reason}",
+        admin=request.user if request.user.is_authenticated else None
+    )
+
+    return JsonResponse({
+        "success": True,
+        "penalty_count": u.penalty_count,
+        "penalty_status": u.penalty_status,
+        "is_active_member": u.is_active_member,
+    })
+
+@csrf_exempt
+def penalty_ban(request, user_id):
+    data = json.loads(request.body)
+    reason = data.get("reason", "").strip()
+
+    u = User.objects.get(id=user_id)
+
+    u.penalty_count = 2  # big number = banned
+    u.penalty_status = "banned"
+    u.is_active_member = False
+    u.save()
+
+    Penalty.objects.create(
+        user=u,
+        reason=f"(BAN) {reason}",
+        admin=request.user if request.user.is_authenticated else None
+    )
+
+    return JsonResponse({
+        "success": True,
+        "penalty_count": u.penalty_count,
+        "penalty_status": u.penalty_status,
+        "is_active_member": u.is_active_member,
+    })
+
 
 def import_users_file(request):
     print("import!")
