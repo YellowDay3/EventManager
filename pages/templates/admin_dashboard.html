@@ -1034,6 +1034,7 @@
         <table>
           <thead>
             <tr>
+              <th>Name</th>
               <th>Username</th>
               <th>Role</th>
               <th>Penalty Status</th>
@@ -1042,7 +1043,9 @@
           </thead>
           <tbody>
             {% for u in users %}
+            {% if u.role != 'core' %}
             <tr>
+              <td><strong>{{ u.displayname }}</strong></td>
               <td><strong>{{ u.username }}</strong></td>
               <td>
                 <span class="badge {% if u.role == 'admin' %}badge-admin{% elif u.role == 'scanner' %}badge-scanner{% else %}badge-user{% endif %}">
@@ -1067,6 +1070,7 @@
                 <a href="{% url 'user_delete' u.id %}">Delete</a>
               </td>
             </tr>
+            {% endif %}
             {% endfor %}
           </tbody>
         </table>

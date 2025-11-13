@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>User Form</title>
+<title>Group Form</title>
 <style>
   * {
     margin: 0;
@@ -56,8 +56,7 @@
   }
   
   input[type="text"],
-  input[type="password"],
-  select {
+  textarea {
     width: 100%;
     padding: 0.875rem 1rem;
     border: 2px solid #e5e7eb;
@@ -68,16 +67,17 @@
     font-family: inherit;
   }
   
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  
   input:focus,
-  select:focus {
+  textarea:focus {
     outline: none;
     border-color: #667eea;
     background: white;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-  
-  select {
-    cursor: pointer;
   }
   
   .helptext {
@@ -153,29 +153,17 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>{% if create %}Create New User{% else %}Edit User{% endif %}</h1>
+      <h1>{% if create %}Create New Group{% else %}Edit Group{% endif %}</h1>
       
       <form method="post">
         {% csrf_token %}
         
         <div class="form-group">
-          <label for="id_username">Username</label>
-          {{ form.username }}
-          {% if form.username.errors %}
+          <label for="id_name">Group Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}
             <ul class="errorlist">
-              {% for error in form.username.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          <label for="id_displayname">Displayname</label>
-          {{ form.displayname }}
-          {% if form.displayname.errors %}
-            <ul class="errorlist">
-              {% for error in form.displayname.errors %}
+              {% for error in form.name.errors %}
                 <li>{{ error }}</li>
               {% endfor %}
             </ul>
@@ -183,48 +171,21 @@
         </div>
         
         <div class="form-group">
-          <label for="id_password">Password</label>
-          {{ form.password }}
-          {% if form.password.help_text %}
-            <span class="helptext">{{ form.password.help_text }}</span>
-          {% endif %}
-          {% if form.password.errors %}
+          <label for="id_description">Description</label>
+          {{ form.description }}
+          <span class="helptext">Optional: Add a description for this group</span>
+          {% if form.description.errors %}
             <ul class="errorlist">
-              {% for error in form.password.errors %}
+              {% for error in form.description.errors %}
                 <li>{{ error }}</li>
               {% endfor %}
             </ul>
           {% endif %}
         </div>
-        
-        <div class="form-group">
-          <label for="id_role">Role</label>
-          {{ form.role }}
-          {% if form.role.errors %}
-            <ul class="errorlist">
-              {% for error in form.role.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-
-        <div class="form-group">
-          <label for="id_graup">Group</label>
-          {{ form.graup }}
-          {% if form.graup.errors %}
-            <ul class="errorlist">
-              {% for error in form.graup.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-
         
         <div class="button-group">
           <a href="{% url 'admin_dashboard' %}" class="back-link">← Back</a>
-          <button type="submit">💾 Save User</button>
+          <button type="submit">💾 Save Group</button>
         </div>
       </form>
     </div>

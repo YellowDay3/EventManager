@@ -28,7 +28,7 @@
       position: absolute;
       top: 0;
       right: 0;
-      padding: 0.75rem 1.5rem;
+      padding: 0.75rem 1rem;
       background: rgba(255, 255, 255, 0.2);
       color: white;
       text-decoration: none;
@@ -49,7 +49,7 @@
     .header {
       text-align: center;
       color: white;
-      margin-bottom: 2rem;
+      margin-bottom: 1.35rem;
     }
     
     .header h1 {
@@ -58,9 +58,23 @@
       text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
-    .header .username {
-      font-size: 1.1rem;
+    .header .infothing .username {
+      font-weight: 700;
+      font-size: 1.5rem;
       opacity: 0.9;
+    }
+    
+    .header .infothing .user-group {
+      font-size: 1.3rem;
+      opacity: 0.85;
+      font-weight: 350;
+      padding: 0.4rem 1.5rem;
+    }
+    
+    .header .infothing .event-description {
+      font-size: 0.95rem;
+      opacity: 0.9;
+      font-weight: 500;
     }
     
     .card {
@@ -162,24 +176,22 @@
       border-bottom-left-radius: 16px;
     }
     
-    .scan-line {
-      position: absolute;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, #667eea, transparent);
-      top: 0;
-      left: 0;
-      animation: scan 2s ease-in-out infinite;
-      box-shadow: 0 0 10px #667eea;
-    }
-    
-    @keyframes scan {
-      0%, 100% { top: 0; }
-      50% { top: calc(100% - 3px); }
-    }
-    
     #canvas {
       display: none;
+    }
+
+    .infothing {
+      color: #000000;
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 1.5rem;
+      background: #f9fafb;
+      border-radius: 12px;
+      margin-top: 1rem;
     }
     
     .result-container {
@@ -201,6 +213,7 @@
     }
     
     .result-text {
+      padding-top: 1rem;
       font-size: 1.1rem;
       font-weight: 600;
     }
@@ -613,6 +626,7 @@
       }
       
       .result-text {
+        padding-top: 1rem;
         font-size: 0.95rem;
       }
     }
@@ -628,7 +642,10 @@
     
     <div class="header">
       <h1>Scanner Portal</h1>
-      <div class="username">{{ request.user.username }}</div>
+      <div class="infothing"> 
+        <div class="username">{{ request.user.displayname }}</div>
+        <div class="user-group">{% if user.graup == None %} Groupless {% else %} {{ user.graup.name }} {% endif %}</div>
+      </div>
     </div>
     
     <div class="card">
@@ -661,17 +678,14 @@
     const result = document.getElementById('result');
     let scanning = true;
     
-    // Show result container on load
     setTimeout(() => result.classList.add('show'), 100);
     
-    // Improved camera access with HTTP support
     async function startCamera() {
       console.log('Attempting to start camera...');
       console.log('User agent:', navigator.userAgent);
       console.log('Protocol:', window.location.protocol);
       console.log('Hostname:', window.location.hostname);
       
-      // Check if we're on localhost or HTTP
       const isLocalhost = window.location.hostname === 'localhost' || 
                          window.location.hostname === '127.0.0.1' ||
                          window.location.hostname === '[::1]' ||
@@ -684,15 +698,12 @@
       console.log('Is HTTP:', isHTTP);
       console.log('Is HTTPS:', isHTTPS);
       
-      // Check if mediaDevices is available
       if (!navigator.mediaDevices) {
         console.error('navigator.mediaDevices not available');
         
-        // Try legacy API for HTTP fallback
         if (isHTTP && !isLocalhost) {
           result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">Camera requires HTTPS or localhost. Current: ' + window.location.protocol + '//' + window.location.hostname + '</div>';
           
-          // Try to suggest HTTPS URL
           if (window.location.port) {
             result.innerHTML += '<br><small>Try: https://' + window.location.hostname + ':' + window.location.port + window.location.pathname + '</small>';
           }
@@ -709,7 +720,6 @@
       }
       
       try {
-        // List available devices for debugging
         try {
           const devices = await navigator.mediaDevices.enumerateDevices();
           const videoDevices = devices.filter(device => device.kind === 'videoinput');
@@ -723,12 +733,10 @@
         
         let stream = null;
         
-        // Mobile-specific constraints first
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         console.log('Is mobile:', isMobile);
         
         const constraints = isMobile ? [
-          // Mobile: Try back camera with explicit constraints
           { 
             video: { 
               facingMode: { exact: 'environment' },
@@ -737,7 +745,6 @@
             },
             audio: false
           },
-          // Mobile: Try back camera with ideal
           { 
             video: { 
               facingMode: { ideal: 'environment' },
@@ -746,13 +753,10 @@
             },
             audio: false
           },
-          // Mobile: Try back camera simple
           { video: { facingMode: 'environment' }, audio: false },
-          // Mobile: Try any camera
           { video: { width: { ideal: 1280 } }, audio: false },
           { video: true, audio: false }
         ] : [
-          // Desktop: Standard constraints
           { 
             video: { 
               width: { ideal: 1280 },
@@ -783,16 +787,13 @@
           throw new Error('Failed to obtain camera stream with all constraints');
         }
         
-        // Set video source
         video.srcObject = stream;
         console.log('Video srcObject set');
         
-        // Force attributes
         video.setAttribute('autoplay', '');
         video.setAttribute('playsinline', '');
         video.setAttribute('muted', '');
         
-        // Wait for video to be ready with better handling
         video.onloadedmetadata = () => {
           console.log('Video metadata loaded:', video.videoWidth, 'x', video.videoHeight);
         };
@@ -810,17 +811,13 @@
           console.log('✓ Video playing successfully');
         } catch (playErr) {
           console.error('Play error:', playErr);
-          // Try again with user interaction fallback
           video.play().catch(e => console.error('Second play attempt failed:', e));
         }
         
-        // Wait a bit for video to stabilize
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Verify video is actually playing
         if (video.readyState >= 2) {
           console.log('Video ready state OK:', video.readyState);
-          // Start scanning
           requestAnimationFrame(tick);
         } else {
           console.warn('Video not ready, waiting...');
@@ -843,7 +840,6 @@
           errorMessage = 'Camera is in use by another app. Please close other apps and try again.';
         } else if (e.name === 'OverconstrainedError' || e.name === 'ConstraintNotSatisfiedError') {
           errorMessage = 'Camera constraints not satisfied. Trying simpler settings...';
-          // Try one more time with absolute minimal constraints
           setTimeout(() => {
             navigator.mediaDevices.getUserMedia({ video: true })
               .then(s => {
@@ -929,7 +925,7 @@
                 <div class="icon-fix"></div>
               </div>
             </div>
-            <div class="result-text result-success">${data.message || 'Checked in successfully!'}</div>
+            <div class="result-text result-success">Member : ${data.username} <br> Event : ${data.eventname} <br> Group : ${data.group} <br> Time : ${data.checked_at} <br> Checked in successfully!</div>
           `;
         } else {
           result.innerHTML = `
@@ -952,7 +948,6 @@
           <div class="result-text result-error">Network error: ${e.message}</div>
         `;
       }
-      // allow scanning again after 3s
       setTimeout(() => { 
         scanning = true; 
         result.innerHTML = '<div class="result-text result-ready pulse">📷 Ready to scan</div>';

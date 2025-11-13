@@ -14,7 +14,9 @@ PENALTY_STATUS = [
 ROLE_CHOICES = [
     ('member', 'Member'),
     ('scanner', 'Scanner'),
+    ('moderator', 'Moderator'),
     ('admin', 'Admin'),
+    ('core', 'Core'),
 ]
 
 class UserManager(BaseUserManager):
@@ -39,11 +41,23 @@ class UserManager(BaseUserManager):
 
         return self.create_user(username, password, **extra_fields)
 
+class Graup(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name  # Just show the group name
+
+    # Optional helper if you want quick access
+    def member_usernames(self):
+        return [user.username for user in self.users.all()]
+
 class User(AbstractBaseUser, PermissionsMixin):
+    displayname = models.CharField(max_length=150, default='')
     username = models.CharField(max_length=150, unique=True)
     password = models.CharField(max_length=128, blank=True, null=True)  # stored raw
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='member')
-    penalty_count = models.IntegerField(default=0)
+    penalty_level = models.IntegerField(default=0)
     penalty_status = models.CharField(max_length=10, default='ok')
     is_active_member = models.BooleanField(default=True)
     last_login = models.DateTimeField(null=True, blank=True)
@@ -52,6 +66,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
+
+    graup = models.ForeignKey(
+        Graup,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='users'
+    )
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
@@ -108,6 +130,7 @@ class Penalty(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     admin = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='penalties_given')
     active = models.BooleanField(default=True)
+    previouslevel = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Penalty {self.user} ({'active' if self.active else 'inactive'})"

@@ -58,11 +58,44 @@
     text-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
   
-  .header .username {
+/*  .header .username {
     font-size: 1.1rem;
     opacity: 0.9;
   }
+*/
+  .header .infothing .username {
+    font-weight: 700;
+    font-size: 1.3rem;
+    opacity: 0.9;
+  }
   
+  .header .infothing .user-group {
+    font-size: 1rem;
+    opacity: 0.85;
+    font-weight: 300;
+    padding: 0.4rem 1.5rem;
+  }
+  
+  .header .infothing .event-description {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    font-weight: 500;
+  }
+  
+  .infothing {
+    color: #000000;
+    text-align: center;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    margin-top: 1rem;
+  }
+
   .card {
     background: white;
     border-radius: 20px;
@@ -397,6 +430,45 @@
     color: #6b7280;
   }
   
+  .upcoming-events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .upcoming-event-item {
+    padding: 1.5rem;
+    background: #f9fafb;
+    border-radius: 16px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+  }
+  
+  .upcoming-event-item:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+  }
+  
+  .upcoming-event-name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  
+  .upcoming-event-time {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .upcoming-event-description {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+  
   .pulse {
     animation: pulse 2s ease-in-out infinite;
   }
@@ -522,6 +594,14 @@
     .status-container {
       min-height: 80px;
     }
+    
+    .upcoming-event-name {
+      font-size: 1.2rem;
+    }
+    
+    .upcoming-event-time {
+      font-size: 0.9rem;
+    }
   }
   
   @media (max-width: 480px) {
@@ -566,6 +646,22 @@
     .status-text {
       font-size: 1rem;
     }
+    
+    .upcoming-events-list {
+      gap: 1.5rem;
+    }
+    
+    .upcoming-event-item {
+      padding: 1.25rem;
+    }
+    
+    .upcoming-event-name {
+      font-size: 1.1rem;
+    }
+    
+    .upcoming-event-time {
+      font-size: 0.85rem;
+    }
   }
 </style>
 </head>
@@ -579,10 +675,17 @@
     
     <div class="header">
       <h1>Event Portal</h1>
-      <div class="username">{{ request.user.username }}</div>
+      <div class="infothing"> 
+        <div class="username">{{ request.user.displayname }}</div>
+        <div class="user-group">{% if user.graup == None %} Groupless {% else %} {{ user.graup.name }} {% endif %}</div>
+        {% if ongoing %}
+        <div class="event-description">{{ event.description }}</div>
+        {% endif %}
+      </div>
     </div>
     
-    {% if event %}
+    {% if ongoing %}
+      <!-- Ongoing Event -->
       <div class="card">
         <h2 class="event-title">{{ event.title }}</h2>
         <p class="event-time">{{ event.start_time }} — {{ event.end_time }}</p>
@@ -662,15 +765,32 @@
           }
         }
         
-        setInterval(checkStatus, 60000);
+        setInterval(checkStatus, 1200000);
         checkStatus();
       </script>
     {% else %}
+      <!-- Upcoming Events -->
       <div class="card">
-        <div class="no-event">
-          <div class="no-event-icon">📅</div>
-          <div class="no-event-text">No active event right now</div>
-        </div>
+        {% if upcoming_events %}
+          <h2 class="event-title" style="margin-bottom: 1.5rem;">Upcoming Events</h2>
+          <div class="upcoming-events-list">
+            {% for e in upcoming_events %}
+              <div class="upcoming-event-item">
+                <h3 class="upcoming-event-name">{{ e.title }}</h3>
+                <p class="upcoming-event-time">Starts at {{ e.start_time }}</p>
+                <P class="upcoming-event-description">{{ e.description }}</p>
+                <div class="qr-container" style="margin-top: 1rem;">
+                  <img id="qr" src="{% url 'generate_qr' e.id request.user.id %}" alt="QR for {{ e.title }}">
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="no-event">
+            <div class="no-event-icon">📅</div>
+            <div class="no-event-text">No upcoming events</div>
+          </div>
+        {% endif %}
       </div>
     {% endif %}
   </div>

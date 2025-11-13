@@ -238,16 +238,6 @@
             <p>Sign in to your account</p>
         </div>
 
-        {% if messages %}
-        <div>
-            {% for message in messages %}
-            <div class="alert-box">
-                <p>{{ message }}</p>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         <form method="POST" id="login-form">
             {% csrf_token %}
             
@@ -335,7 +325,7 @@
                 return response.json();
             })
             .then(function(data) {
-                if (data.role === 'admin') {
+                if (data.role === 'admin' || data.role === 'moderator' || data.role === 'core' ) {
                     isAdmin = true;
                     createPasswordField();
                 } else {

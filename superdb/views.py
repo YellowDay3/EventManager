@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 import json
 from .utils import decode_qr_token
-from .models import Event, User, Attendance, Penalty
+from .models import Event, User, Attendance, Penalty, Graup
 from django.db import transaction
 from django.contrib.auth.decorators import login_required, user_passes_test
 import pandas as pd
@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 
 def is_scanner_or_admin(user):
-    return user.is_authenticated and (user.role == 'scanner' or user.role == 'admin')
+    return user.is_authenticated and (user.role == 'scanner' or user.role == 'admin' or user.role == 'core')
 
 @require_POST
 @login_required
@@ -63,17 +63,17 @@ def scan_endpoint(request):
 
     if overlapping.exists():
         # increment penalty count
-        user.penalty_count += 1
-        if user.penalty_count >= 2:
+        user.penalty_level += 1
+        if user.penalty_level >= 2:
             user.penalty_status = 'banned'
             user.save()
             Penalty.objects.create(user=user, reason='Auto-ban for multiple overlapping scans', admin=request.user)
-            return JsonResponse({'ok': False, 'error': 'banned_due_to_multiple_overlaps', 'penalty_count': user.penalty_count}, status=403)
+            return JsonResponse({'ok': False, 'error': 'banned_due_to_multiple_overlaps', 'penalty_level': user.penalty_level}, status=403)
         else:
             user.penalty_status = 'warned'
             user.save()
-            Penalty.objects.create(user=user, reason=f'Warning: overlapping event scanned (count={user.penalty_count})', admin=request.user)
-            return JsonResponse({'ok': False, 'error': 'warning_overlapping_scan', 'penalty_count': user.penalty_count}, status=400)
+            Penalty.objects.create(user=user, reason=f'Warning: overlapping event scanned (count={user.penalty_level})', admin=request.user)
+            return JsonResponse({'ok': False, 'error': 'warning_overlapping_scan', 'penalty_level': user.penalty_level}, status=400)
 
     # Create attendance record (unique)
     try:
@@ -84,7 +84,7 @@ def scan_endpoint(request):
     except Exception as e:
         return JsonResponse({'ok': False, 'error': 'db_error', 'details': str(e)}, status=500)
 
-    return JsonResponse({'ok': True, 'message': 'checked_in', 'user': user.id, 'event': event.id, 'checked_at': attendance.checked_at.isoformat()})
+    return JsonResponse({'ok': True, 'message': 'checked_in', 'username': user.username, 'eventname': event.title, 'group': user.group.name, 'user': user.id, 'event': event.id, 'checked_at': attendance.checked_at.isoformat()})
 
 @login_required
 @require_GET
@@ -154,7 +154,7 @@ def finalize_import(request):
     mapping = data["mapping"]
     role = data["role"]
     default_penalty = 0
-    default_penalty2 = "ok"
+    default_penalty = "ok"
 
     count = 0
 
@@ -181,7 +181,7 @@ def finalize_import(request):
             username=username,
             defaults={
                 "role": role,
-                "penalty_count": default_penalty,
+                "penalty_level": default_penalty,
                 "penalty_status": default_penalty2,
             }
         )

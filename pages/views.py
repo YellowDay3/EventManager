@@ -2,8 +2,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from superdb.models import User, Event, Penalty
-from superdb.utils import make_qr_payload
+from superdb.models import User, Event, Penalty, Graup
+from superdb.utils import make_qr_payload, timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from superdb.forms import AdminUserForm, EventForm
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
@@ -22,7 +22,7 @@ def menu(request):
     """
     user = request.user
 
-    if user.role == 'admin':
+    if user.role == 'admin' or user.role == 'core' or user.role == 'moderator':
         return redirect('admin_dashboard')
     elif user.role == 'scanner':
         return redirect('scanner_page')
@@ -59,7 +59,9 @@ def check_role(request):
     return JsonResponse({'role': None, 'error': 'Invalid request method'})
 
 # ---- simple role checks ----
-def is_admin(user): return user.is_authenticated and user.role == "admin"
+def is_core(user): return user.is_authenticated and user.role == "admin"
+def is_higheradmin(user): return user.is_authenticated and user.role == "admin" or user.role == "core"
+def is_admin(user): return user.is_authenticated and user.role == "admin" or user.role == "moderator" or user.role == "core"
 def is_scanner(user): return user.is_authenticated and user.role == "scanner"
 def is_member(user): return user.is_authenticated and user.role == "member"
 
@@ -86,7 +88,7 @@ def login_view(request):
             return render(request, 'login_member.html', {'error': f'Timeout active. Try again in {wait} min.'})
 
         # Step 3: handle login depending on role
-        if user.role == 'admin':
+        if user.role == 'admin' or user.role == 'moderator' or user.role == 'core':
             if not password:
                 messages.error(request, 'A password is required.')
                 return render(request, 'login_member.html', {'error': 'Password required for admin'})
@@ -109,7 +111,7 @@ def login_view(request):
         user.save()
 
         # Step 5: redirect based on role
-        if user.role == 'admin':
+        if user.role == 'admin' or user.role == 'core' or user.role == 'moderator':
             #messages.success(request, f'Welcome back, {user.username}! Logged in as Admin')
             return redirect('admin_dashboard')
         elif user.role == 'scanner':
@@ -129,20 +131,36 @@ def logout_view(request):
 
 # ---- member / scanner pages ----
 @login_required
-#@user_passes_test(is_member)
 def member_page(request):
-    # Show member QR for active event (pick latest running event)
-    now = None
-    try:
-        now = None
-        event = Event.objects.filter(start_time__lte__lte=None)  # dummy to silence lint
-    except Exception:
-        pass
-    # Get current active event if any (choose first where now in window)
-    from django.utils import timezone
-    now = timezone.now()
-    event = Event.objects.filter(start_time__lte=now, end_time__gte=now).order_by('start_time').first()
-    context = {'event': event}
+    """
+    Displays the current ongoing event (if any),
+    or otherwise lists all upcoming/planned events.
+    Server time (timezone.now) is used to prevent client-side abuse.
+    """
+    now = timezone.now()  # <-- server time, not user device
+
+    # Try to get ongoing event
+    ongoing_event = Event.objects.filter(
+        start_time__lte=now,
+        end_time__gte=now
+    ).order_by('start_time').first()
+
+    if ongoing_event:
+        # Show only the active event
+        context = {
+            'event': ongoing_event,
+            'ongoing': True,
+        }
+    else:
+        # No event currently running → show future/planned events
+        upcoming_events = Event.objects.filter(
+            start_time__gt=now
+        ).order_by('start_time')
+        context = {
+            'upcoming_events': upcoming_events,
+            'ongoing': False,
+        }
+
     return render(request, 'member_page.html', context)
 
 @login_required
@@ -198,8 +216,9 @@ def bulk_qr_zip(request, event_id):
 def admin_dashboard(request):
     users = User.objects.all().order_by('-username')
     events = Event.objects.all().order_by('-start_time')
-    penalty = Penalty.objects.all().order_by('-created_at')
-    return render(request, 'admin_dashboard.html', {'users': users, 'events': events, 'penalty': penalty})
+    penalty_history = Penalty.objects.all().order_by('-created_at')
+    return render(request, 'admin_dashboard.html', {'users': users, 'events': events, 'penalty_history': penalty_history
+        })
 
 # CRUD user (admin)
 @login_required
@@ -238,6 +257,41 @@ def user_delete(request, user_id):
 
 @login_required
 @user_passes_test(is_admin)
+def group_create(request):
+    if request.method == 'POST':
+        form = AdminUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_dashboard')
+    else:
+        form = AdminUserForm()
+    return render(request, 'group_form.html', {'form': form, 'create': True})
+
+@login_required
+@user_passes_test(is_admin)
+def group_edit(request, graup_id):
+    u = get_object_or_404(User, pk=graup_id)
+    if request.method == 'POST':
+        form = AdminUserForm(request.POST, instance=u)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_dashboard')
+    else:
+        form = AdminUserForm(instance=u)
+    return render(request, 'group_form.html', {'form': form, 'create': False, 'graup_obj': u})
+
+@login_required
+@user_passes_test(is_admin)
+def group_delete(request, graup_id):
+    u = get_object_or_404(User, pk=graup_id)
+    if request.method == 'POST':
+        u.delete()
+        return redirect('admin_dashboard')
+    return render(request, 'group_delete.html', {'graup_obj': u})
+
+
+@login_required
+@user_passes_test(is_admin)
 def event_create(request):
     if request.method == 'POST':
         form = EventForm(request.POST)
@@ -245,7 +299,7 @@ def event_create(request):
             event = form.save(commit=False)
             event.created_by = request.user        # ✅ record which admin created it
             event.save()
-            messages.success(request, "Event created successfully.")
+            #messages.success(request, "Event created successfully.")
             return redirect('admin_dashboard')
     else:
         form = EventForm()
@@ -261,7 +315,7 @@ def event_edit(request, event_id):
         form = EventForm(request.POST, instance=event)
         if form.is_valid():
             form.save()
-            messages.success(request, "Event updated successfully.")
+            #messages.success(request, "Event updated successfully.")
             return redirect('admin_dashboard')
     else:
         form = EventForm(instance=event)
@@ -276,7 +330,7 @@ def event_delete(request, event_id):
 
     if request.method == 'POST':
         event.delete()
-        messages.success(request, "Event deleted.")
+        #messages.success(request, "Event deleted.")
         return redirect('admin_dashboard')
 
     return render(request, 'event_delete.html', {'event': event})
@@ -320,13 +374,15 @@ def event_assign_users(request, event_id):
     })
 
 def compute_penalty_status(u):
-    if u.penalty_count <= 0:
+    if u.penalty_level <= 0:
         return "ok"
-    elif u.penalty_count == 1:
+    elif u.penalty_level == 1:
         return "warned"
     else:
         return "banned"
 
+@login_required
+@user_passes_test(is_admin)
 @csrf_exempt
 def penalty_add(request, user_id):
     if request.method != "POST":
@@ -338,7 +394,7 @@ def penalty_add(request, user_id):
     u = User.objects.get(id=user_id)
 
     # Increase count
-    u.penalty_count += 1
+    u.penalty_level += 1
     u.penalty_status = compute_penalty_status(u)
 
     # Auto update active flag
@@ -355,11 +411,13 @@ def penalty_add(request, user_id):
 
     return JsonResponse({
         "success": True,
-        "penalty_count": u.penalty_count,
+        "penalty_level": u.penalty_level,
         "penalty_status": u.penalty_status,
         "is_active_member": u.is_active_member,
     })
 
+@login_required
+@user_passes_test(is_admin)
 @csrf_exempt
 def penalty_reduce(request, user_id):
     if request.method != "POST":
@@ -370,9 +428,9 @@ def penalty_reduce(request, user_id):
 
     u = User.objects.get(id=user_id)
 
-    u.penalty_count -= 1
-    if u.penalty_count < 0:
-        u.penalty_count = 0
+    u.penalty_level -= 1
+    if u.penalty_level < 0:
+        u.penalty_level = 0
 
     u.penalty_status = compute_penalty_status(u)
     u.is_active_member = (u.penalty_status != "banned")
@@ -387,11 +445,13 @@ def penalty_reduce(request, user_id):
 
     return JsonResponse({
         "success": True,
-        "penalty_count": u.penalty_count,
+        "penalty_level": u.penalty_level,
         "penalty_status": u.penalty_status,
         "is_active_member": u.is_active_member,
     })
 
+@login_required
+@user_passes_test(is_admin)
 @csrf_exempt
 def penalty_pardon(request, user_id):
     data = json.loads(request.body)
@@ -399,7 +459,7 @@ def penalty_pardon(request, user_id):
 
     u = User.objects.get(id=user_id)
 
-    u.penalty_count = 0
+    u.penalty_level = 0
     u.penalty_status = "ok"
     u.is_active_member = True
     u.save()
@@ -412,11 +472,13 @@ def penalty_pardon(request, user_id):
 
     return JsonResponse({
         "success": True,
-        "penalty_count": u.penalty_count,
+        "penalty_level": u.penalty_level,
         "penalty_status": u.penalty_status,
         "is_active_member": u.is_active_member,
     })
 
+@login_required
+@user_passes_test(is_admin)
 @csrf_exempt
 def penalty_ban(request, user_id):
     data = json.loads(request.body)
@@ -424,7 +486,7 @@ def penalty_ban(request, user_id):
 
     u = User.objects.get(id=user_id)
 
-    u.penalty_count = 2  # big number = banned
+    u.penalty_level = 2  # big number = banned
     u.penalty_status = "banned"
     u.is_active_member = False
     u.save()
@@ -437,7 +499,7 @@ def penalty_ban(request, user_id):
 
     return JsonResponse({
         "success": True,
-        "penalty_count": u.penalty_count,
+        "penalty_level": u.penalty_level,
         "penalty_status": u.penalty_status,
         "is_active_member": u.is_active_member,
     })
