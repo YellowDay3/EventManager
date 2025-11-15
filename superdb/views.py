@@ -141,56 +141,68 @@ def parse_import(request):
         "columns": columns,
         "rows": rows
     })
-
+    
 @csrf_exempt
 def finalize_import(request):
     import json
+    from .models import Graup
     User = get_user_model()
 
     data = json.loads(request.body)
 
     rows = data["rows"]
-    mode = data["mode"]              # "username" or "firstname_lastname"
+    mode = data["mode"]
     mapping = data["mapping"]
     role = data["role"]
+
     default_penalty = 0
-    default_penalty = "ok"
+    default_penalty2 = "ok"
 
     count = 0
 
     for row in rows:
-        
-        # ✅ MODE A — username directly from spreadsheet
+
+        # --- MODE A ---
         if mode == "username":
             username = row.get(mapping["username"], "")
+            group_name = row.get(mapping["group"], "")
             password = row.get(mapping.get("password"), None)
 
-        # ✅ MODE B — build username from firstname + lastname
+        # --- MODE B ---
         else:
             firstname = row.get(mapping["firstname"], "")
             lastname = row.get(mapping["lastname"], "")
+            group_name = row.get(mapping["group"], "")
             password = row.get(mapping.get("password"), None)
 
-            # ✅ Build username WITHOUT saving firstname/lastname to DB
             username = f"{firstname}_{lastname}".lower().replace(" ", "")
 
         if not username:
             continue
 
+        # --- CREATE OR GET GRAUP ---
+        graup_obj, _ = Graup.objects.update_or_create(
+            name=group_name,
+            defaults={"description": ""}
+        )
+
+        # --- CREATE/UPDATE USER ---
         user, created = User.objects.update_or_create(
             username=username,
             defaults={
                 "role": role,
+                "graup": graup_obj,
                 "penalty_level": default_penalty,
                 "penalty_status": default_penalty2,
             }
         )
 
+        # --- SET PASSWORD (raw) ---
         if password:
             user.set_password(password)
-            user.save()
 
         count += 1
 
     return JsonResponse({"success": True, "count": count})
+
 

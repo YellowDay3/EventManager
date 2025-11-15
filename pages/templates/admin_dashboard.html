@@ -1151,6 +1151,10 @@
             <span class="btn-icon">➕</span>
             New User
           </a>
+          <a href="{% url 'group_create' %}" class="btn btn-small">
+            <span class="btn-icon">➕</span>
+            New Group
+          </a>
         </div>
       </div>
       
@@ -1168,12 +1172,12 @@
           <option value="warned">Warned</option>
           <option value="banned">Banned</option>
         </select>
-        <select id="groupFilter" class="filter-select" onchange="filterUsersTable()">
-          <option value="">All Groups</option>
-          {% for group in groups %}
-          <option value="{{ group }}">{{ group }}</option>
-          {% endfor %}
-        </select>
+          <select id="groupFilter" class="filter-select" onchange="filterUsersTable()">
+            <option value="">All Groups</option>
+            {% for group in groups %}
+            <option value="{{ group.name }}">{{ group.name }}</option>
+            {% endfor %}
+          </select>
       </div>
       
       <div class="table-wrapper">
@@ -1200,8 +1204,8 @@
                 </span>
               </td>
               <td>
-                {% if u.group %}
-                <span class="badge badge-group">{{ u.group }}</span>
+                {% if u.graup %}
+                <span class="badge badge-group">{{ u.graup.name }}</span>
                 {% else %}
                 <span style="color: #9ca3af;">—</span>
                 {% endif %}
