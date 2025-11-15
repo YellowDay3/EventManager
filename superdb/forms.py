@@ -22,7 +22,7 @@ class EventForm(forms.ModelForm):
         model = Event
         fields = ['title', 'description', 'start_time', 'end_time', 'max_attendees']
 
-class GraupFrom(forms.ModelForm):
+class GraupForm(forms.ModelForm):
     class Meta:
         model = Graup
         fields = ['name', 'description']

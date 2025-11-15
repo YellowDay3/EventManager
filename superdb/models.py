@@ -103,6 +103,10 @@ class Event(models.Model):
         related_name='assigned_events'
     )
 
+    def is_planned(self, at=None):
+        at = at or timezone.now()
+        return self.start_time >=at
+
     def is_running(self, at=None):
         at = at or timezone.now()
         return self.start_time <= at <= self.end_time

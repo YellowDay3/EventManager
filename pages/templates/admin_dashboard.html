@@ -117,15 +117,68 @@
     font-size: 1.4rem;
   }
   
-  h2 {
-    color: #333;
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 3px solid #667eea;
+  .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .section-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .filter-search-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .search-input {
+    flex: 1;
+    min-width: 250px;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+  
+  .filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: white;
+    min-width: 150px;
+  }
+  
+  .filter-select:focus {
+    outline: none;
+    border-color: #667eea;
   }
   
   .btn-small {
@@ -134,7 +187,6 @@
     width: auto;
   }
   
-  /* Table Container with Scrollable Wrapper */
   .table-wrapper {
     max-height: 600px;
     overflow-y: auto;
@@ -253,6 +305,11 @@
     color: white;
   }
   
+  .badge-group {
+    background: #f59e0b;
+    color: white;
+  }
+  
   .penalty-badge {
     display: inline-flex;
     align-items: center;
@@ -303,7 +360,6 @@
     border: 2px solid #059669;
   }
   
-  /* Penalties Modal Styles */
   .penalties-list {
     max-height: 500px;
     overflow-y: auto;
@@ -444,7 +500,6 @@
     background: #dc2626;
   }
   
-  /* Event List Container with Scrollable Wrapper */
   .event-list-wrapper {
     max-height: 600px;
     overflow-y: auto;
@@ -460,11 +515,22 @@
     margin-bottom: 1rem;
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     border-radius: 8px;
-    border-left: 4px solid #667eea;
     transition: transform 0.2s, opacity 0.3s;
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+  
+  .event-item.status-planned {
+    border-left: 4px solid #3b82f6;
+  }
+  
+  .event-item.status-ongoing {
+    border-left: 4px solid #10b981;
+  }
+  
+  .event-item.status-ended {
+    border-left: 4px solid #6b7280;
   }
   
   .event-item:hover {
@@ -480,10 +546,45 @@
     color: #333;
     margin-bottom: 0.5rem;
     font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .event-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  
+  .event-status-badge.status-planned {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .event-status-badge.status-ongoing {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  .event-status-badge.status-ended {
+    background: #f3f4f6;
+    color: #4b5563;
   }
   
   .event-time {
     color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  .event-creator {
+    color: #8b5cf6;
+    font-weight: 500;
     font-size: 0.875rem;
   }
   
@@ -506,7 +607,38 @@
     font-family: inherit;
   }
   
-  /* Custom Scrollbar Styles */
+  .event-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .penalty-history-item {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 8px;
+    transition: transform 0.2s, opacity 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .penalty-history-item.action-add {
+    border-left: 4px solid #f59e0b;
+  }
+  
+  .penalty-history-item.action-reduce {
+    border-left: 4px solid #3b82f6;
+  }
+  
+  .penalty-history-item.action-pardon {
+    border-left: 4px solid #10b981;
+  }
+  
+  .penalty-history-item.action-ban {
+    border-left: 4px solid #ef4444;
+  }
+  
   .table-wrapper::-webkit-scrollbar,
   .event-list-wrapper::-webkit-scrollbar {
     width: 8px;
@@ -529,7 +661,6 @@
     background: #764ba2;
   }
   
-  /* Modal Styles */
   .modal {
     display: none;
     position: fixed;
@@ -661,6 +792,12 @@
     color: #6b7280;
   }
   
+  .user-group {
+    font-size: 0.75rem;
+    color: #f59e0b;
+    font-weight: 500;
+  }
+  
   .modal-actions {
     display: flex;
     gap: 1rem;
@@ -716,38 +853,8 @@
     color: #374151;
   }
   
-  /* Import Modal Styles */
-  .import-tab {
-    flex: 1;
-    padding: 0.75rem 1rem;
-    background: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    cursor: pointer;
-    font-weight: 600;
-    color: #6b7280;
-    transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.95rem;
-  }
-  
-  .import-tab:hover {
-    color: #667eea;
-  }
-  
-  .import-tab.active {
-    color: #667eea;
-    border-bottom-color: #667eea;
-  }
-  
-  .import-tab-content {
-    display: none;
-  }
-  
-  .import-tab-content.active {
-    display: block;
+  .group-selector {
+    margin-bottom: 1rem;
   }
   
   .upload-area {
@@ -789,7 +896,6 @@
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
   }
   
-  /* Success Animation Modal */
   .success-modal {
     display: none;
     position: fixed;
@@ -985,6 +1091,20 @@
     .penalty-btn {
       flex: 1;
     }
+    
+    .filter-search-container {
+      flex-direction: column;
+    }
+    
+    .search-input {
+      min-width: 100%;
+    }
+    
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
   }
 </style>
 </head>
@@ -1013,23 +1133,49 @@
     </div>
     
     <div class="card">
-      <h2>
-        <span>Users</span>
-        <div style="display: flex; gap: 0.5rem;">
+      <div class="section-header">
+        <div class="section-title">
+          <span>👥</span>
+          <span>Users</span>
+        </div>
+        <div class="section-actions">
           <button onclick="openPenaltiesModal()" class="btn btn-small" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);">
             <span class="btn-icon">⚠️</span>
-            View Active Penalties
+            Active Penalties
           </button>
           <button onclick="openImportModal()" class="btn btn-small" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
             <span class="btn-icon">📥</span>
-            Import Data...
+            Import Data
           </button>
           <a href="{% url 'user_create' %}" class="btn btn-small">
-            <span class="btn-icon">👤</span>
-            Create New User
+            <span class="btn-icon">➕</span>
+            New User
           </a>
         </div>
-      </h2>
+      </div>
+      
+      <div class="filter-search-container">
+        <input type="text" id="userSearch" class="search-input" placeholder="🔍 Search by name or username..." onkeyup="filterUsersTable()">
+        <select id="roleFilter" class="filter-select" onchange="filterUsersTable()">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="scanner">Scanner</option>
+          <option value="member">Member</option>
+        </select>
+        <select id="penaltyFilter" class="filter-select" onchange="filterUsersTable()">
+          <option value="">All Penalties</option>
+          <option value="ok">OK</option>
+          <option value="warned">Warned</option>
+          <option value="banned">Banned</option>
+        </select>
+        <select id="groupFilter" class="filter-select" onchange="filterUsersTable()">
+          <option value="">All Groups</option>
+          {% for group in groups %}
+          <option value="{{ group }}">{{ group }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
       <div class="table-wrapper">
         <table>
           <thead>
@@ -1037,20 +1183,28 @@
               <th>Name</th>
               <th>Username</th>
               <th>Role</th>
+              <th>Group</th>
               <th>Penalty Status</th>
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="usersTableBody">
             {% for u in users %}
             {% if u.role != 'core' %}
-            <tr>
+            <tr data-username="{{ u.username|lower }}" data-displayname="{{ u.displayname|lower }}" data-role="{{ u.role }}" data-penalty="{{ u.penalty_status }}" data-group="{{ u.group|default:'' }}">
               <td><strong>{{ u.displayname }}</strong></td>
               <td><strong>{{ u.username }}</strong></td>
               <td>
                 <span class="badge {% if u.role == 'admin' %}badge-admin{% elif u.role == 'scanner' %}badge-scanner{% else %}badge-user{% endif %}">
                   {{ u.role }}
                 </span>
+              </td>
+              <td>
+                {% if u.group %}
+                <span class="badge badge-group">{{ u.group }}</span>
+                {% else %}
+                <span style="color: #9ca3af;">—</span>
+                {% endif %}
               </td>
               <td>
                 <span class="penalty-badge {% if u.penalty_status == 'banned' %}penalty-banned{% elif u.penalty_status == 'warned' %}penalty-warning{% else %}penalty-ok{% endif %}">
@@ -1078,25 +1232,57 @@
     </div>
     
     <div class="card">
-      <h2>
-        <span>Events</span>
-        <a href="{% url 'event_create' %}" class="btn btn-small">
-          <span class="btn-icon">📅</span>
-          Create New Event
-        </a>
-      </h2>
+      <div class="section-header">
+        <div class="section-title">
+          <span>📅</span>
+          <span>Events</span>
+        </div>
+        <div class="section-actions">
+          <a href="{% url 'event_create' %}" class="btn btn-small">
+            <span class="btn-icon">➕</span>
+            New Event
+          </a>
+        </div>
+      </div>
+      
+      <div class="filter-search-container">
+        <input type="text" id="eventSearch" class="search-input" placeholder="🔍 Search events..." onkeyup="filterEvents()">
+        <select id="eventStatusFilter" class="filter-select" onchange="filterEvents()">
+          <option value="">All Statuses</option>
+          <option value="planned">Planned</option>
+          <option value="ongoing">Ongoing</option>
+          <option value="ended">Ended</option>
+        </select>
+      </div>
+      
       <div class="event-list-wrapper">
-        <ul class="event-list">
+        <ul class="event-list" id="eventsList">
           {% for e in events %}
-          <li class="event-item">
+          <li class="event-item status-{{ e.status }}" data-title="{{ e.title|lower }}" data-status="{{ e.status }}" data-event-id="{{ e.id }}">
             <div class="event-info">
-              <div class="event-title">{{ e.title }}</div>
-              <div class="event-time">{{ e.start_time }} → {{ e.end_time }}</div>
+              <div class="event-title">
+                {{ e.title }}
+                <span class="event-status-badge status-{{ e.status }}">
+                  {% if e.is_planned %} 📋 Planned
+                  {% elif e.is_running %} 🔴 Ongoing
+                  {% else %} ✓ Ended
+                  {% endif %}
+                </span>
+              </div>
+              <div class="event-time">
+                {{ e.start_time }} → {{ e.end_time }}
+                <span style="margin: 0 0.5rem; color: #9ca3af;">•</span>
+                <span class="event-creator">Created by {{ e.created_by.displayname }}</span>
+              </div>
             </div>
             <div class="event-actions">
+              {% if e.status != 'ended' or user.role == 'admin' or user.role == 'core' %}
               <a href="{% url 'event_edit' e.id %}" style="background: #3b82f6; color: white;">Edit</a>
-              <button onclick="openAssignModal({{ e.id }}, '{{ e.title|escapejs }}')" style="background: #8b5cf6; color: white;">Assign Users</button>
+              {% endif %}
+              <button onclick="openAssignModal({{ e.id }}, '{{ e.title|escapejs }}', '{{ e.status }}')" style="background: #8b5cf6; color: white;" {% if e.status == 'ended' %}disabled{% endif %}>Assign Users</button>
+              {% if user.role == 'admin' or user.role == 'core' %}
               <a href="{% url 'event_delete' e.id %}" style="background: #ef4444; color: white;">Delete</a>
+              {% endif %}
             </div>
           </li>
           {% endfor %}
@@ -1105,13 +1291,28 @@
     </div>
     
     <div class="card">
-      <h2>
-        <span>Penalty History</span>
-      </h2>
+      <div class="section-header">
+        <div class="section-title">
+          <span>📋</span>
+          <span>Penalty History</span>
+        </div>
+      </div>
+      
+      <div class="filter-search-container">
+        <input type="text" id="penaltyHistorySearch" class="search-input" placeholder="🔍 Search by username..." onkeyup="filterPenaltyHistory()">
+        <select id="penaltyActionFilter" class="filter-select" onchange="filterPenaltyHistory()">
+          <option value="">All Actions</option>
+          <option value="add">Add Penalty</option>
+          <option value="reduce">Reduce Penalty</option>
+          <option value="pardon">Pardon</option>
+          <option value="ban">Ban</option>
+        </select>
+      </div>
+      
       <div class="event-list-wrapper">
         <ul class="event-list" id="penaltyHistoryList">
           {% for penalty in penalty_history %}
-          <li class="event-item" data-penalty-id="{{ penalty.id }}">
+          <li class="penalty-history-item action-{{ penalty.action }}" data-penalty-id="{{ penalty.id }}" data-username="{{ penalty.user.username|lower }}" data-action="{{ penalty.action }}">
             <div class="event-info">
               <div class="event-title">
                 <span style="font-weight: 700; color: #667eea;">{{ penalty.user.username }}</span>
@@ -1123,6 +1324,8 @@
                   {% elif penalty.action == 'ban' %}🚫 Banned
                   {% endif %}
                 </span>
+                <span style="margin: 0 0.5rem; color: #9ca3af;">•</span>
+                <span style="color: #8b5cf6; font-weight: 500;">by {{ penalty.admin.username }}</span>
               </div>
               <div class="event-time">
                 {{ penalty.timestamp|date:"M d, Y g:i A" }}
@@ -1363,6 +1566,15 @@
               <option value="">-- Select Column --</option>
             </select>
           </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              Group Column <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="map_group_username" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="">-- Select Column --</option>
+            </select>
+          </div>
           
           <div style="margin-bottom: 1.5rem;">
             <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
@@ -1389,6 +1601,15 @@
               Last Name Column <span style="color: #ef4444;">*</span>
             </label>
             <select id="map_lastname" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
+              <option value="">-- Select Column --</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.75rem; font-size: 1rem;">
+              Group Column <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="map_group_name" style="width: 100%; padding: 0.875rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; background: white;">
               <option value="">-- Select Column --</option>
             </select>
           </div>
@@ -1489,21 +1710,31 @@
       </div>
       
       <div class="search-box">
-        <input type="text" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()">
+        <input type="text" id="userSearchModal" placeholder="Search users..." onkeyup="filterUsersModal()">
+      </div>
+      
+      <div class="group-selector">
+        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Select by Group:</label>
+        <select id="groupSelectModal" class="filter-select" style="width: 100%;" onchange="selectGroupUsers()">
+          <option value="">-- Select a Group --</option>
+          {% for group in groups %}
+          <option value="{{ group }}">{{ group }}</option>
+          {% endfor %}
+        </select>
       </div>
       
       <div class="select-all">
         <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-        <label for="selectAll">Select All</label>
+        <label for="selectAll">Select All Visible</label>
       </div>
       
       <ul class="user-list" id="userList">
         {% for u in users %}
-        <li class="user-item" data-user-id="{{ u.id }}" data-username="{{ u.username|lower }}" data-role="{{ u.role|lower }}" onclick="toggleUser(this)">
+        <li class="user-item" data-user-id="{{ u.id }}" data-username="{{ u.username|lower }}" data-role="{{ u.role|lower }}" data-group="{{ u.group|default:'' }}" onclick="toggleUser(this)">
           <input type="checkbox" class="user-checkbox" value="{{ u.id }}" onclick="event.stopPropagation()">
           <div class="user-info">
             <div class="user-name">{{ u.username }}</div>
-            <div class="user-role">{{ u.role }}</div>
+            <div class="user-role">{{ u.role }}{% if u.group %} • <span class="user-group">{{ u.group }}</span>{% endif %}</div>
           </div>
         </li>
         {% endfor %}
@@ -1518,6 +1749,7 @@
   
   <script>
     let currentEventId = null;
+    let currentEventStatus = null;
     let currentImportFile = null;
     let importedRows = [];
     let importedColumns = [];
@@ -1526,6 +1758,74 @@
     let currentAction = null;
     let currentUserId = null;
     let currentUsername = null;
+    
+    // Filter Functions
+    function filterUsersTable() {
+      const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+      const roleFilter = document.getElementById('roleFilter').value;
+      const penaltyFilter = document.getElementById('penaltyFilter').value;
+      const groupFilter = document.getElementById('groupFilter').value;
+      const rows = document.querySelectorAll('#usersTableBody tr');
+      
+      rows.forEach(row => {
+        const username = row.dataset.username || '';
+        const displayname = row.dataset.displayname || '';
+        const role = row.dataset.role || '';
+        const penalty = row.dataset.penalty || '';
+        const group = row.dataset.group || '';
+        
+        const matchesSearch = username.includes(searchTerm) || displayname.includes(searchTerm);
+        const matchesRole = !roleFilter || role === roleFilter;
+        const matchesPenalty = !penaltyFilter || penalty === penaltyFilter;
+        const matchesGroup = !groupFilter || group === groupFilter;
+        
+        if (matchesSearch && matchesRole && matchesPenalty && matchesGroup) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    function filterEvents() {
+      const searchTerm = document.getElementById('eventSearch').value.toLowerCase();
+      const statusFilter = document.getElementById('eventStatusFilter').value;
+      const items = document.querySelectorAll('#eventsList .event-item');
+      
+      items.forEach(item => {
+        const title = item.dataset.title || '';
+        const status = item.dataset.status || '';
+        
+        const matchesSearch = title.includes(searchTerm);
+        const matchesStatus = !statusFilter || status === statusFilter;
+        
+        if (matchesSearch && matchesStatus) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+    
+    function filterPenaltyHistory() {
+      const searchTerm = document.getElementById('penaltyHistorySearch').value.toLowerCase();
+      const actionFilter = document.getElementById('penaltyActionFilter').value;
+      const items = document.querySelectorAll('#penaltyHistoryList .penalty-history-item');
+      
+      items.forEach(item => {
+        const username = item.dataset.username || '';
+        const action = item.dataset.action || '';
+        
+        const matchesSearch = username.includes(searchTerm);
+        const matchesAction = !actionFilter || action === actionFilter;
+        
+        if (matchesSearch && matchesAction) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
     
     // Penalties Modal Functions
     function openPenaltiesModal() {
@@ -1542,7 +1842,6 @@
       currentUserId = userId;
       currentUsername = username;
       
-      // Update modal UI based on action
       const actionTexts = {
         'add': { text: 'Add Penalty', icon: '➕', color: '#f59e0b' },
         'reduce': { text: 'Reduce Penalty', icon: '➖', color: '#3b82f6' },
@@ -1596,7 +1895,6 @@
         if (data.success) {
           closeReasonModal();
           
-          // Update UI if penalty_status is returned
           if (data.penalty_status) {
             updateUserPenaltyUI(currentUserId, data.penalty_status);
           }
@@ -1622,7 +1920,6 @@
     }
     
     function updateUserPenaltyUI(userId, newStatus) {
-      // Update the penalty item in the penalties modal
       const penaltyItem = document.querySelector(`.penalty-item[data-user-id="${userId}"]`);
       if (penaltyItem) {
         penaltyItem.setAttribute('data-status', newStatus);
@@ -1630,31 +1927,29 @@
         const cardIcon = penaltyItem.querySelector('.card-icon-large');
         cardIcon.className = 'card-icon-large';
         
-        if (newStatus === 'warning') {
+        if (newStatus === 'warned') {
           cardIcon.classList.add('yellow-card');
         } else if (newStatus === 'banned') {
           cardIcon.classList.add('red-card');
         }
         
-        // If status is 'ok', hide the penalty item from active penalties
         if (newStatus === 'ok') {
           penaltyItem.style.display = 'none';
         }
       }
       
-      // Update the main users table
-      const userRow = document.querySelector(`tr:has(a[href*="user_edit/${userId}"])`);
+      const userRow = document.querySelector(`tr[data-username*="${userId}"]`);
       if (userRow) {
-        const penaltyCell = userRow.querySelector('td:nth-child(3)');
+        const penaltyCell = userRow.querySelector('td:nth-child(5)');
         if (penaltyCell) {
           let badgeClass = 'penalty-ok';
           let cardClass = 'green-card';
           let statusText = 'ok';
           
-          if (newStatus === 'warning') {
+          if (newStatus === 'warned') {
             badgeClass = 'penalty-warning';
             cardClass = 'yellow-card';
-            statusText = 'warning';
+            statusText = 'warned';
           } else if (newStatus === 'banned') {
             badgeClass = 'penalty-banned';
             cardClass = 'red-card';
@@ -1703,9 +1998,11 @@
     function populateReferenceModal(columns) {
       const selects = [
         'map_username',
+        'map_group_username',
         'map_password_username',
         'map_firstname',
         'map_lastname',
+        'map_group_name',
         'map_password_name'
       ];
       
@@ -1732,7 +2029,6 @@
       }
     }
     
-    // File upload handling
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
     
@@ -1790,7 +2086,6 @@
       return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
     }
     
-    // STEP 1: Parse the import
     document.getElementById('startImport').onclick = () => {
       const file = currentImportFile;
       const url = document.getElementById('sheetsUrl').value.trim();
@@ -1859,7 +2154,6 @@
         });
     };
     
-    // STEP 2: Handle column mapping
     document.getElementById('nextToRole').onclick = () => {
       columnMapping = {};
       
@@ -1870,6 +2164,7 @@
           return;
         }
         columnMapping.username = username;
+        columnMapping.group = document.getElementById('map_group_username').value
         columnMapping.password = document.getElementById('map_password_username').value || null;
       } else {
         const firstname = document.getElementById('map_firstname').value;
@@ -1880,6 +2175,7 @@
         }
         columnMapping.firstname = firstname;
         columnMapping.lastname = lastname;
+        columnMapping.group = document.getElementById('map_group_name').value
         columnMapping.password = document.getElementById('map_password_name').value || null;
       }
       
@@ -1891,7 +2187,6 @@
       document.getElementById('roleModal').classList.add('active');
     };
     
-    // STEP 3: Finalize import
     document.getElementById('finishImport').onclick = () => {
       const role = document.getElementById('roleSelect').value;
       const btn = document.getElementById('finishImport');
@@ -1934,12 +2229,17 @@
     };
     
     // Assign Users Modal Functions
-    function openAssignModal(eventId, eventTitle) {
+    function openAssignModal(eventId, eventTitle, eventStatus) {
+      if (eventStatus === 'ended') {
+        alert('Cannot assign users to an ended event.');
+        return;
+      }
+      
       currentEventId = eventId;
+      currentEventStatus = eventStatus;
       document.getElementById('eventName').textContent = eventTitle;
       document.getElementById('assignModal').classList.add('active');
       
-      // Reset selections
       document.querySelectorAll('.user-checkbox').forEach(checkbox => {
         checkbox.checked = false;
       });
@@ -1947,7 +2247,6 @@
         item.classList.remove('selected');
       });
       
-      // Load existing assignments from the assign page endpoint
       fetch(`/events/${eventId}/assign/`, {
         method: 'GET',
         headers: {
@@ -1958,9 +2257,7 @@
           if (r.headers.get('content-type')?.includes('application/json')) {
             return r.json();
           }
-          // If HTML is returned, we need to parse it differently
           return r.text().then(html => {
-            // Extract assigned user IDs from the HTML (they're in checkboxes)
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const checkedBoxes = doc.querySelectorAll('input[type="checkbox"]:checked');
@@ -1985,8 +2282,9 @@
     
     function closeAssignModal() {
       document.getElementById('assignModal').classList.remove('active');
-      document.getElementById('userSearch').value = '';
-      filterUsers();
+      document.getElementById('userSearchModal').value = '';
+      document.getElementById('groupSelectModal').value = '';
+      filterUsersModal();
     }
     
     function toggleUser(element) {
@@ -2025,8 +2323,8 @@
       selectAll.checked = visibleCheckboxes.length > 0 && checkedCount === visibleCheckboxes.length;
     }
     
-    function filterUsers() {
-      const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    function filterUsersModal() {
+      const searchTerm = document.getElementById('userSearchModal').value.toLowerCase();
       const userItems = document.querySelectorAll('.user-item');
       
       userItems.forEach(item => {
@@ -2037,6 +2335,26 @@
           item.style.display = 'flex';
         } else {
           item.style.display = 'none';
+        }
+      });
+      
+      updateSelectAllCheckbox();
+    }
+    
+    function selectGroupUsers() {
+      const selectedGroup = document.getElementById('groupSelectModal').value;
+      
+      if (!selectedGroup) return;
+      
+      const userItems = document.querySelectorAll('.user-item');
+      
+      userItems.forEach(item => {
+        const itemGroup = item.dataset.group;
+        const checkbox = item.querySelector('.user-checkbox');
+        
+        if (itemGroup === selectedGroup) {
+          checkbox.checked = true;
+          item.classList.add('selected');
         }
       });
       
@@ -2070,7 +2388,6 @@
       });
     }
     
-    // Revert Penalty Function
     function revertPenalty(penaltyId, username, action) {
       const actionMessages = {
         'add': 'reduce the penalty for',
@@ -2090,14 +2407,12 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            // Remove the penalty item from the list
             const penaltyItem = document.querySelector(`[data-penalty-id="${penaltyId}"]`);
             if (penaltyItem) {
               penaltyItem.style.opacity = '0';
               setTimeout(() => penaltyItem.remove(), 300);
             }
             
-            // Update UI if penalty_status is returned
             if (data.user_id && data.penalty_status) {
               updateUserPenaltyUI(data.user_id, data.penalty_status);
             }
@@ -2114,7 +2429,6 @@
       }
     }
     
-    // Close modal when clicking outside
     window.onclick = function(event) {
       const importModal = document.getElementById('importModal');
       const penaltiesModal = document.getElementById('penaltiesModal');
@@ -2132,9 +2446,6 @@
       if (event.target === roleModal) {
         closeRoleModal();
       }
-      if (event.target === referenceModal) {
-        closeReferenceModal();
-      }
       if (event.target === assignModal) {
         closeAssignModal();
       }
@@ -2143,7 +2454,6 @@
       }
     }
     
-    // Listen to checkbox changes
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelectorAll('.user-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {

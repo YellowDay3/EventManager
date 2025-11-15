@@ -5,7 +5,7 @@ from django.contrib import messages
 from superdb.models import User, Event, Penalty, Graup
 from superdb.utils import make_qr_payload, timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
-from superdb.forms import AdminUserForm, EventForm
+from superdb.forms import AdminUserForm, EventForm, GraupForm
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 import qrcode
 from io import BytesIO
@@ -164,7 +164,7 @@ def member_page(request):
     return render(request, 'member_page.html', context)
 
 @login_required
-@user_passes_test(lambda u: u.role in ["admin", "scanner"])
+@user_passes_test(lambda u: u.role in ["admin", "scanner", "moderator", "core"])
 def scanner_page(request):
     return render(request, 'scanner_page.html')
 
@@ -217,7 +217,8 @@ def admin_dashboard(request):
     users = User.objects.all().order_by('-username')
     events = Event.objects.all().order_by('-start_time')
     penalty_history = Penalty.objects.all().order_by('-created_at')
-    return render(request, 'admin_dashboard.html', {'users': users, 'events': events, 'penalty_history': penalty_history
+    groups = Graup.objects.all().order_by('-name')
+    return render(request, 'admin_dashboard.html', {'users': users, 'events': events, 'penalty_history': penalty_history, 'groups': groups
         })
 
 # CRUD user (admin)
@@ -259,31 +260,31 @@ def user_delete(request, user_id):
 @user_passes_test(is_admin)
 def group_create(request):
     if request.method == 'POST':
-        form = AdminUserForm(request.POST)
+        form = GraupForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('admin_dashboard')
     else:
-        form = AdminUserForm()
+        form = GraupForm()
     return render(request, 'group_form.html', {'form': form, 'create': True})
 
 @login_required
 @user_passes_test(is_admin)
 def group_edit(request, graup_id):
-    u = get_object_or_404(User, pk=graup_id)
+    u = get_object_or_404(Graup, pk=graup_id)
     if request.method == 'POST':
-        form = AdminUserForm(request.POST, instance=u)
+        form = GraupForm(request.POST, instance=u)
         if form.is_valid():
             form.save()
             return redirect('admin_dashboard')
     else:
-        form = AdminUserForm(instance=u)
+        form = GraupForm(instance=u)
     return render(request, 'group_form.html', {'form': form, 'create': False, 'graup_obj': u})
 
 @login_required
 @user_passes_test(is_admin)
 def group_delete(request, graup_id):
-    u = get_object_or_404(User, pk=graup_id)
+    u = get_object_or_404(Graup, pk=graup_id)
     if request.method == 'POST':
         u.delete()
         return redirect('admin_dashboard')
