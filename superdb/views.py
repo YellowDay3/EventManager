@@ -80,11 +80,18 @@ def scan_endpoint(request):
         with transaction.atomic():
             attendance, created = Attendance.objects.get_or_create(event=event, user=user, defaults={'scanner': request.user})
             if not created:
-                return JsonResponse({'ok': False, 'error': 'already_checked_in'}, status=400)
+                return JsonResponse({'ok': False, 'error': 'This user is aleady checked in'}, status=400)
     except Exception as e:
         return JsonResponse({'ok': False, 'error': 'db_error', 'details': str(e)}, status=500)
 
-    return JsonResponse({'ok': True, 'message': 'checked_in', 'username': user.username, 'eventname': event.title, 'group': user.graup.name, 'user': user.id, 'event': event.id, 'checked_at': attendance.checked_at.isoformat()})
+    group_thing = user.graup
+
+    if group_thing == None:
+        group_namething = 'Groupless'
+    else: 
+        group_namething = user.graup.name    
+
+    return JsonResponse({'ok': True, 'message': 'checked_in', 'username': user.username, 'eventname': event.title, 'group': group_namething, 'user': user.id, 'event': event.id, 'checked_at': attendance.checked_at.isoformat()})
 
 @login_required
 @require_GET

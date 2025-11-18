@@ -94,7 +94,12 @@ class Event(models.Model):
     description = models.TextField(blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='events_created')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='events_created'
+    )
     max_attendees = models.PositiveIntegerField(null=True, blank=True)
 
     assigned_users = models.ManyToManyField(
@@ -103,9 +108,18 @@ class Event(models.Model):
         related_name='assigned_events'
     )
 
+    # NEW FIELD → The group (Graup) that owns this event
+    graup = models.ForeignKey(
+        'Graup',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='events'
+    )
+
     def is_planned(self, at=None):
         at = at or timezone.now()
-        return self.start_time >=at
+        return self.start_time >= at
 
     def is_running(self, at=None):
         at = at or timezone.now()
@@ -113,6 +127,7 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.start_time} → {self.end_time})"
+
 
 
 class Attendance(models.Model):

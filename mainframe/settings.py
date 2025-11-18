@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-li#v&p1ti7@lp(nbn+1u5dks-0pu-6b)a6b-&tc)r*s)h5c48*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.255', '192.168.1.9', 'localhost', '127.0.0.1', '*', 'incubative-pearly-kylan.ngrok-free.dev']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'incubative-pearly-kylan.ngrok-free.dev', 'eventmanager-68ya.onrender.com']
 
 
 # Application definition

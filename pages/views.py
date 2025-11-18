@@ -59,7 +59,7 @@ def check_role(request):
     return JsonResponse({'role': None, 'error': 'Invalid request method'})
 
 # ---- simple role checks ----
-def is_core(user): return user.is_authenticated and user.role == "admin"
+def is_core(user): return user.is_authenticated and user.role == "core"
 def is_higheradmin(user): return user.is_authenticated and user.role == "admin" or user.role == "core"
 def is_admin(user): return user.is_authenticated and user.role == "admin" or user.role == "moderator" or user.role == "core"
 def is_scanner(user): return user.is_authenticated and user.role == "scanner"
@@ -99,7 +99,7 @@ def login_view(request):
         else:
             # If user shouldn’t use a password but entered one — timeout
             if password:
-                user.timeout_until = timezone.now() + timedelta(minutes=1)
+                user.timeout_until = timezone.now() + timedelta(minutes=2)
                 user.save()
                 messages.error(request, 'Nuh uh, go eat shit')
                 return render(request, 'login_member.html', {'error': 'You entered a password — timed out for 1 min.'})
@@ -132,30 +132,31 @@ def logout_view(request):
 # ---- member / scanner pages ----
 @login_required
 def member_page(request):
-    """
-    Displays the current ongoing event (if any),
-    or otherwise lists all upcoming/planned events.
-    Server time (timezone.now) is used to prevent client-side abuse.
-    """
-    now = timezone.now()  # <-- server time, not user device
+    now = timezone.now()
 
-    # Try to get ongoing event
+    # List of groups the user belongs to
+    user_groups = request.user.group_set.values_list('id', flat=True)
+
+    # Ongoing event filtered by user's groups
     ongoing_event = Event.objects.filter(
         start_time__lte=now,
-        end_time__gte=now
+        end_time__gte=now,
+        group_id__in=user_groups  # <-- hide events from other groups
     ).order_by('start_time').first()
 
     if ongoing_event:
-        # Show only the active event
         context = {
             'event': ongoing_event,
             'ongoing': True,
         }
+
     else:
-        # No event currently running → show future/planned events
+        # Upcoming events ONLY from user's groups
         upcoming_events = Event.objects.filter(
-            start_time__gt=now
+            start_time__gt=now,
+            group_id__in=user_groups  # <-- hide events from other groups
         ).order_by('start_time')
+
         context = {
             'upcoming_events': upcoming_events,
             'ongoing': False,
