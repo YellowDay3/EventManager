@@ -3,30 +3,38 @@ from django import forms
 from .models import User, Event, Graup
 
 class AdminUserForm(forms.ModelForm):
-    password = forms.CharField(
+    # 1. RENAME the field here
+    new_password = forms.CharField(
+        label="Password", # Display label for the HTML
         required=False, 
-        widget=forms.PasswordInput, 
-        help_text="Leave empty if you don't want to set a password."
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        help_text="Set a password."
     )
 
     class Meta:
         model = User
-        # FIX: Only include fields that actually exist in your user_form.html
+        # 2. Ensure 'password' is NOT in this list
         fields = [
             'displayname', 
             'username', 
-            'password', 
             'role', 
             'graup'
-            # Removed 'penalty_status', 'penalty_level', 'is_active_member' 
-            # so the model's default values (ok, 0, True) are used automatically.
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make password required only when creating a NEW user
+        if not self.instance.pk:
+            self.fields['new_password'].required = True
 
     def save(self, commit=True):
         user = super().save(commit=False)
         
-        pwd = self.cleaned_data.get('password')
+        # 3. Get the data from the RENAMED field
+        pwd = self.cleaned_data.get('new_password')
+        
         if pwd:
+            # 4. Assign it to the model's password field
             user.password = pwd
         
         if commit:
