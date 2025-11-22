@@ -11,6 +11,13 @@ PENALTY_STATUS = [
     ('banned', 'Banned'),
 ]
 
+PENALTY_TYPES = [
+    ('reduce', 'Reduce'),
+    ('add', 'Add'),
+    ('pardon', 'Pardon'),
+    ('ban', 'Ban')
+]
+
 ROLE_CHOICES = [
     ('member', 'Member'),
     ('scanner', 'Scanner'),
@@ -108,6 +115,8 @@ class Event(models.Model):
         related_name='assigned_events'
     )
 
+    penalties_processed = models.BooleanField(default=False)
+
     # NEW FIELD → The group (Graup) that owns this event
     graup = models.ForeignKey(
         'Graup',
@@ -140,11 +149,12 @@ class Attendance(models.Model):
     class Meta:
         unique_together = ('event', 'user')
 
-    def __str__(self):
+    def __str__(self): 
         return f"{self.user} @ {self.event} at {self.checked_at}"
 
 class Penalty(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='penalties')
+    type = models.CharField(max_length=10, choices=PENALTY_TYPES, default='add')
     reason = models.CharField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     admin = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='penalties_given')
@@ -153,3 +163,82 @@ class Penalty(models.Model):
 
     def __str__(self):
         return f"Penalty {self.user} ({'active' if self.active else 'inactive'})"
+        
+LOG_ACTIONS = [
+    ('login', 'Login'),
+    ('logout', 'Logout'),
+    ('user_create', 'User Created'),
+    ('user_edit', 'User Edited'),
+    ('user_delete', 'User Deleted'),
+    ('group_create', 'Group Created'),
+    ('group_edit', 'Group Edited'),
+    ('group_delete', 'Group Deleted'),
+    ('event_create', 'Event Created'),
+    ('event_edit', 'Event Edited'),
+    ('event_delete', 'Event Deleted'),
+    ('event_assign', 'Users Assigned to Event'),
+    ('event_end', 'Event Ended'),
+    ('checkin', 'User Checked In'),
+    ('checkin_undo', 'Check-in Undone'),
+    ('checkin_bulk', 'Bulk Check-in'),
+    ('penalty_add', 'Penalty Added'),
+    ('penalty_reduce', 'Penalty Reduced'),
+    ('penalty_pardon', 'User Pardoned'),
+    ('penalty_ban', 'User Banned'),
+    ('penalty_auto', 'Auto Penalty (No-show)'),
+    ('import_users', 'Users Imported'),
+    ('scheduler_run', 'Scheduler Processed Events'),
+]
+
+class Log(models.Model):
+    action = models.CharField(max_length=50, choices=LOG_ACTIONS)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='logs_performed'
+    )
+    target_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='logs_received'
+    )
+    target_event = models.ForeignKey(
+        'Event',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='logs'
+    )
+    target_group = models.ForeignKey(
+        'Graup',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='logs'
+    )
+    details = models.TextField(blank=True, null=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"[{self.timestamp.strftime('%Y-%m-%d %H:%M')}] {self.get_action_display()} by {self.user}"
+
+    @classmethod
+    def log(cls, action, user=None, target_user=None, target_event=None, target_group=None, details=None, ip_address=None):
+        """Helper method to create a log entry"""
+        return cls.objects.create(
+            action=action,
+            user=user,
+            target_user=target_user,
+            target_event=target_event,
+            target_group=target_group,
+            details=details,
+            ip_address=ip_address
+        )

@@ -153,6 +153,8 @@ def parse_import(request):
 def finalize_import(request):
     import json
     from .models import Graup
+    from django.contrib.auth import get_user_model
+    
     User = get_user_model()
 
     data = json.loads(request.body)
@@ -168,21 +170,33 @@ def finalize_import(request):
     count = 0
 
     for row in rows:
+        display_name_val = ""
 
-        # --- MODE A ---
+        # --- MODE A: USERNAME ---
         if mode == "username":
             username = row.get(mapping["username"], "")
             group_name = row.get(mapping["group"], "")
             password = row.get(mapping.get("password"), None)
+            
+            # Requirement: Username with the first letter in Caps
+            if username:
+                display_name_val = username.strip().capitalize()
 
-        # --- MODE B ---
+        # --- MODE B: FIRSTNAME + LASTNAME ---
         else:
             firstname = row.get(mapping["firstname"], "")
             lastname = row.get(mapping["lastname"], "")
             group_name = row.get(mapping["group"], "")
             password = row.get(mapping.get("password"), None)
 
+            # Generate username
             username = f"{firstname}_{lastname}".lower().replace(" ", "")
+
+            # Requirement: Firstname Lastname (Both capitalized, space between)
+            # .title() ensures "john" becomes "John"
+            f_clean = str(firstname).strip().title()
+            l_clean = str(lastname).strip().title()
+            display_name_val = f"{f_clean} {l_clean}"
 
         if not username:
             continue
@@ -201,6 +215,7 @@ def finalize_import(request):
                 "graup": graup_obj,
                 "penalty_level": default_penalty,
                 "penalty_status": default_penalty2,
+                "displayname": display_name_val,  # <--- ADDED THIS
             }
         )
 

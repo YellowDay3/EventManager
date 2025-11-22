@@ -25,6 +25,11 @@ urlpatterns = [
     path('events/<int:event_id>/edit/', views.event_edit, name='event_edit'),
     path('events/<int:event_id>/delete/', views.event_delete, name='event_delete'),
     path('events/<int:event_id>/assign/', views.event_assign_users, name='event_assign_users'),
+    path('events/<int:event_id>/details/', views.event_details, name='event_details'),
+    path('events/<int:event_id>/checkin/<int:user_id>/', views.checkin_user, name='checkin_user'),
+    path('events/<int:event_id>/checkin/<int:user_id>/undo/', views.undo_checkin, name='undo_checkin'),
+    path('events/<int:event_id>/end-and-penalize/', views.end_event_and_penalize, name='end_event_and_penalize'),
+    path('events/<int:event_id>/checkin/bulk/', views.bulk_checkin, name='bulk_checkin'),
     path('import-users-file/', views.import_users_file, name='import_users_file'),
     path('import-url-file/', views.import_users_url, name='import_users_url'),
     path('import-url-file/', views.import_url_file, name='import_url_file'),
@@ -32,5 +37,5 @@ urlpatterns = [
     path("penalty/reduce/<int:user_id>/", views.penalty_reduce),
     path("penalty/pardon/<int:user_id>/", views.penalty_pardon),
     path("penalty/ban/<int:user_id>/", views.penalty_ban),
-
+    path('logs/', views.get_logs, name='get_logs'),
 ]

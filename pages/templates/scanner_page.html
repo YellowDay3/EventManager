@@ -71,12 +71,6 @@
       padding: 0.4rem 1.5rem;
     }
     
-    .header .infothing .event-description {
-      font-size: 0.95rem;
-      opacity: 0.9;
-      font-weight: 500;
-    }
-    
     .card {
       background: white;
       border-radius: 20px;
@@ -232,6 +226,35 @@
     
     .result-error {
       color: #ef4444;
+    }
+
+    /* === NEW BUTTON STYLING === */
+    .scan-next-btn {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .scan-next-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+
+    .scan-next-btn:active {
+      transform: scale(0.98);
     }
     
     /* Success Checkmark Animation */
@@ -678,193 +701,71 @@
     const result = document.getElementById('result');
     let scanning = true;
     
+    // Timer Variables
+    let autoResetTimer = null;
+    let countdownInterval = null;
+    const RESET_TIME = 20; // Seconds until auto-reset
+
     setTimeout(() => result.classList.add('show'), 100);
     
     async function startCamera() {
       console.log('Attempting to start camera...');
-      console.log('User agent:', navigator.userAgent);
-      console.log('Protocol:', window.location.protocol);
-      console.log('Hostname:', window.location.hostname);
       
       const isLocalhost = window.location.hostname === 'localhost' || 
-                         window.location.hostname === '127.0.0.1' ||
-                         window.location.hostname === '[::1]' ||
-                         window.location.hostname.endsWith('.local');
+                          window.location.hostname === '127.0.0.1' ||
+                          window.location.hostname === '[::1]' ||
+                          window.location.hostname.endsWith('.local');
       
       const isHTTP = window.location.protocol === 'http:';
-      const isHTTPS = window.location.protocol === 'https:';
-      
-      console.log('Is localhost:', isLocalhost);
-      console.log('Is HTTP:', isHTTP);
-      console.log('Is HTTPS:', isHTTPS);
       
       if (!navigator.mediaDevices) {
-        console.error('navigator.mediaDevices not available');
-        
         if (isHTTP && !isLocalhost) {
-          result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">Camera requires HTTPS or localhost. Current: ' + window.location.protocol + '//' + window.location.hostname + '</div>';
-          
-          if (window.location.port) {
-            result.innerHTML += '<br><small>Try: https://' + window.location.hostname + ':' + window.location.port + window.location.pathname + '</small>';
-          }
+          result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">Camera requires HTTPS.</div>';
         } else {
-          result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">Camera not supported on this browser.</div>';
+          result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">Camera not supported.</div>';
         }
-        return;
-      }
-      
-      if (!navigator.mediaDevices.getUserMedia) {
-        console.error('getUserMedia not supported');
-        result.innerHTML = '<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">getUserMedia not supported on this browser.</div>';
         return;
       }
       
       try {
-        try {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          const videoDevices = devices.filter(device => device.kind === 'videoinput');
-          console.log('Available video devices:', videoDevices.length);
-          videoDevices.forEach((device, i) => {
-            console.log(`Device ${i}:`, device.label || 'Unknown', device.deviceId);
-          });
-        } catch (enumErr) {
-          console.warn('Could not enumerate devices:', enumErr);
-        }
-        
         let stream = null;
-        
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        console.log('Is mobile:', isMobile);
         
         const constraints = isMobile ? [
-          { 
-            video: { 
-              facingMode: { exact: 'environment' },
-              width: { min: 640, ideal: 1280, max: 1920 },
-              height: { min: 480, ideal: 720, max: 1080 }
-            },
-            audio: false
-          },
-          { 
-            video: { 
-              facingMode: { ideal: 'environment' },
-              width: { ideal: 1280 },
-              height: { ideal: 720 }
-            },
-            audio: false
-          },
+          { video: { facingMode: { exact: 'environment' } }, audio: false },
           { video: { facingMode: 'environment' }, audio: false },
-          { video: { width: { ideal: 1280 } }, audio: false },
           { video: true, audio: false }
         ] : [
-          { 
-            video: { 
-              width: { ideal: 1280 },
-              height: { ideal: 720 }
-            },
-            audio: false
-          },
+          { video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
           { video: true, audio: false }
         ];
         
         for (let i = 0; i < constraints.length; i++) {
           try {
-            console.log(`Trying constraint ${i + 1}/${constraints.length}:`, JSON.stringify(constraints[i]));
             stream = await navigator.mediaDevices.getUserMedia(constraints[i]);
-            console.log('✓ Camera stream obtained with constraint', i + 1);
-            console.log('Stream tracks:', stream.getVideoTracks().map(t => ({
-              label: t.label,
-              settings: t.getSettings()
-            })));
             break;
-          } catch (err) {
-            console.error(`✗ Constraint ${i + 1} failed:`, err.name, err.message);
-            if (i === constraints.length - 1) throw err;
-          }
+          } catch (err) {}
         }
         
-        if (!stream) {
-          throw new Error('Failed to obtain camera stream with all constraints');
-        }
+        if (!stream) throw new Error('Failed to obtain camera stream');
         
         video.srcObject = stream;
-        console.log('Video srcObject set');
-        
         video.setAttribute('autoplay', '');
         video.setAttribute('playsinline', '');
         video.setAttribute('muted', '');
         
-        video.onloadedmetadata = () => {
-          console.log('Video metadata loaded:', video.videoWidth, 'x', video.videoHeight);
-        };
-        
-        video.onloadeddata = () => {
-          console.log('Video data loaded');
-        };
-        
-        video.oncanplay = () => {
-          console.log('Video can play');
-        };
-        
         try {
           await video.play();
-          console.log('✓ Video playing successfully');
         } catch (playErr) {
-          console.error('Play error:', playErr);
-          video.play().catch(e => console.error('Second play attempt failed:', e));
+          video.play().catch(e => console.error(e));
         }
         
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        if (video.readyState >= 2) {
-          console.log('Video ready state OK:', video.readyState);
-          requestAnimationFrame(tick);
-        } else {
-          console.warn('Video not ready, waiting...');
-          setTimeout(() => requestAnimationFrame(tick), 1000);
-        }
+        requestAnimationFrame(tick);
         
       } catch (e) {
-        console.error('❌ Camera error:', e);
-        console.error('Error name:', e.name);
-        console.error('Error message:', e.message);
-        console.error('Error stack:', e.stack);
-        
         let errorMessage = 'Camera access failed';
-        
-        if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
-          errorMessage = 'Camera permission denied. Please allow camera access and reload the page.';
-        } else if (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError') {
-          errorMessage = 'No camera found. Please check your device has a camera.';
-        } else if (e.name === 'NotReadableError' || e.name === 'TrackStartError') {
-          errorMessage = 'Camera is in use by another app. Please close other apps and try again.';
-        } else if (e.name === 'OverconstrainedError' || e.name === 'ConstraintNotSatisfiedError') {
-          errorMessage = 'Camera constraints not satisfied. Trying simpler settings...';
-          setTimeout(() => {
-            navigator.mediaDevices.getUserMedia({ video: true })
-              .then(s => {
-                video.srcObject = s;
-                video.play();
-                requestAnimationFrame(tick);
-              })
-              .catch(err => console.error('Final attempt failed:', err));
-          }, 1000);
-          return;
-        } else if (e.name === 'TypeError') {
-          errorMessage = 'Camera access error. ';
-          if (isHTTP && !isLocalhost) {
-            errorMessage += 'You must use HTTPS (not HTTP) or localhost. Current: ' + window.location.protocol;
-          } else {
-            errorMessage += 'Please check your browser settings.';
-          }
-        } else if (e.name === 'SecurityError') {
-          errorMessage = 'Security error. ';
-          if (isHTTP && !isLocalhost) {
-            errorMessage += 'Camera requires HTTPS or localhost.';
-          } else {
-            errorMessage += 'Please check your browser permissions.';
-          }
-        }
+        if (e.name === 'NotAllowedError') errorMessage = 'Permission denied.';
+        else if (e.name === 'NotFoundError') errorMessage = 'No camera found.';
         
         result.innerHTML = `<div class="error-checkmark"><div class="error-icon"><span class="error-circle"></span></div></div><div class="result-text result-error">${errorMessage}</div>`;
       }
@@ -904,6 +805,18 @@
       requestAnimationFrame(tick);
     }
     
+    // Function to manually reset the scanner when button is clicked
+    function manualReset() {
+        // Clear any pending timers
+        if (autoResetTimer) clearTimeout(autoResetTimer);
+        if (countdownInterval) clearInterval(countdownInterval);
+        
+        // Reset UI
+        scanning = true;
+        result.innerHTML = '<div class="result-text result-ready pulse">📷 Ready to scan</div>';
+        requestAnimationFrame(tick);
+    }
+
     async function sendToken(token) {
       try {
         const resp = await fetch("{% url 'scan_endpoint' %}", {
@@ -915,8 +828,11 @@
           body: JSON.stringify({ token })
         });
         const data = await resp.json();
+        
+        let resultHTML = '';
+        
         if (data.ok) {
-          result.innerHTML = `
+          resultHTML = `
             <div class="success-checkmark">
               <div class="check-icon">
                 <span class="icon-line line-tip"></span>
@@ -925,10 +841,16 @@
                 <div class="icon-fix"></div>
               </div>
             </div>
-            <div class="result-text result-success">Member : ${data.username} <br> Event : ${data.eventname} <br> Group : ${data.group} <br> Time : ${data.checked_at} <br> Checked in successfully!</div>
+            <div class="result-text result-success">
+                Member : ${data.username} <br> 
+                Event : ${data.eventname} <br> 
+                Group : ${data.group} <br> 
+                Time : ${data.checked_at} <br> 
+                Checked in successfully!
+            </div>
           `;
         } else {
-          result.innerHTML = `
+          resultHTML = `
             <div class="error-checkmark">
               <div class="error-icon">
                 <span class="error-circle"></span>
@@ -937,8 +859,40 @@
             <div class="result-text result-error">${data.error || 'Scan error'}</div>
           `;
         }
+
+        // ADD THE BUTTON AND INJECT INTO HTML
+        resultHTML += `
+            <button id="scanNextBtn" class="scan-next-btn" onclick="manualReset()">
+                Scan Next (${RESET_TIME}s)
+            </button>
+        `;
+        
+        result.innerHTML = resultHTML;
+
+        // --- START TIMER LOGIC ---
+        let timeLeft = RESET_TIME;
+        const btnElement = document.getElementById('scanNextBtn');
+
+        // Update button text every second
+        countdownInterval = setInterval(() => {
+            timeLeft--;
+            if(btnElement) {
+                btnElement.innerText = `Scan Next (${timeLeft}s)`;
+            }
+            if(timeLeft <= 0) {
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+
+        // Auto reset after RESET_TIME seconds
+        autoResetTimer = setTimeout(() => {
+            manualReset();
+        }, RESET_TIME * 1000);
+        // --- END TIMER LOGIC ---
+
       } catch (e) {
         console.error('Network error:', e);
+        // In case of network error, show error and auto-retry faster (e.g., 5s)
         result.innerHTML = `
           <div class="error-checkmark">
             <div class="error-icon">
@@ -946,13 +900,9 @@
             </div>
           </div>
           <div class="result-text result-error">Network error: ${e.message}</div>
+          <button class="scan-next-btn" onclick="manualReset()">Try Again</button>
         `;
       }
-      setTimeout(() => { 
-        scanning = true; 
-        result.innerHTML = '<div class="result-text result-ready pulse">📷 Ready to scan</div>';
-        requestAnimationFrame(tick); 
-      }, 3000);
     }
     
     function getCookie(name) {

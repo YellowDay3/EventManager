@@ -1105,6 +1105,202 @@
       align-items: flex-start;
       gap: 1rem;
     }
+
+    /* Additional styles for the event detail modal */
+    .checkin-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    
+    .checkin-status.checked {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .checkin-status.pending {
+      background: #fef3c7;
+      color: #78350f;
+    }
+    
+    .checkin-status.penalized {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .checkin-btn {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    }
+    
+    .checkin-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    
+    .checkin-btn:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .undo-btn {
+      padding: 0.5rem 1rem;
+      background: #f59e0b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .undo-btn:hover {
+      background: #d97706;
+    }
+    
+    .attendee-row {
+      transition: background-color 0.3s ease;
+    }
+    
+    .attendee-row.just-checked {
+      background-color: rgba(16, 185, 129, 0.15) !important;
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .log-action-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    
+    .log-action-badge.login, .log-action-badge.logout {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .log-action-badge.user_create, .log-action-badge.group_create, .log-action-badge.event_create {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .log-action-badge.user_edit, .log-action-badge.group_edit, .log-action-badge.event_edit {
+      background: #fef3c7;
+      color: #78350f;
+    }
+    
+    .log-action-badge.user_delete, .log-action-badge.group_delete, .log-action-badge.event_delete {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .log-action-badge.checkin, .log-action-badge.checkin_bulk {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .log-action-badge.checkin_undo {
+      background: #fef3c7;
+      color: #78350f;
+    }
+    
+    .log-action-badge.penalty_add, .log-action-badge.penalty_auto {
+      background: #fed7aa;
+      color: #9a3412;
+    }
+    
+    .log-action-badge.penalty_reduce, .log-action-badge.penalty_pardon {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .log-action-badge.penalty_ban {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .log-action-badge.event_assign, .log-action-badge.event_end {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+    
+    .log-action-badge.scheduler_run, .log-action-badge.import_users {
+      background: #f3e8ff;
+      color: #6b21a8;
+    }
+    
+    .log-details {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.85rem;
+      color: #4b5563;
+    }
+    
+    .log-details:hover {
+      white-space: normal;
+      overflow: visible;
+      position: relative;
+      background: white;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+    
+    .log-ip {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    
+    .log-user {
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .log-target {
+      font-weight: 500;
+      color: #8b5cf6;
+    }
+    
+    .log-timestamp {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
   }
 </style>
 </head>
@@ -1125,10 +1321,12 @@
           <span class="btn-icon">📷</span>
           Scan QR Code
         </a>
-        <a href="{% url 'member_page' %}" class="btn btn-secondary">
-          <span class="btn-icon">🔲</span>
-          See QR Code Current Event
-        </a>
+        {% if request.user.role == 'core' or request.user.role == 'admin' %}
+          <button onclick="openLogModal()" class="btn" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">
+            <span class="btn-icon">📋</span>
+            View Activity Logs
+          </button>
+        {% endif %}
       </div>
     </div>
     
@@ -1223,9 +1421,11 @@
                 </span>
               </td>
               <td class="actions">
-                <a href="{% url 'user_edit' u.id %}">Edit</a>
-                <button onclick="openReasonModal('add', {{ u.id }}, '{{ u.username|escapejs }}')" style="background: #f59e0b; color: white;">Add Penalty</button>
-                <a href="{% url 'user_delete' u.id %}">Delete</a>
+                {% if u.role == 'member' or u.role == 'scanner' or u.role == 'moderator' or request.user.role == 'core' and u.role == 'admin' or request.user.role == 'admin' and u.role == 'admin'%}
+                  <a href="{% url 'user_edit' u.id %}">Edit</a>
+                  <button onclick="openReasonModal('add', {{ u.id }}, '{{ u.username|escapejs }}')" style="background: #f59e0b; color: white;">Add Penalty</button>
+                  <a href="{% url 'user_delete' u.id %}">Delete</a>
+                {% endif %}
               </td>
             </tr>
             {% endif %}
@@ -1262,11 +1462,16 @@
       <div class="event-list-wrapper">
         <ul class="event-list" id="eventsList">
           {% for e in events %}
-          <li class="event-item status-{{ e.status }}" data-title="{{ e.title|lower }}" data-status="{{ e.status }}" data-event-id="{{ e.id }}">
+          <li class="event-item status-{{ e.status }}" 
+            data-title="{{ e.title|lower }}" 
+            data-status="{% if e.is_planned %}planned{% elif e.is_running %}ongoing{% else %}ended{% endif %}" 
+            data-event-id="{{ e.id }}">
             <div class="event-info">
               <div class="event-title">
-                {{ e.title }}
-                <span class="event-status-badge status-{{ e.status }}">
+                <span onclick="openEventDetailModal({{ e.id }})" style="cursor: pointer; text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color 0.2s;" onmouseenter="this.style.textDecorationColor='#667eea'" onmouseleave="this.style.textDecorationColor='transparent'">
+                  {{ e.title }}
+                </span>
+                <span class="event-status-badge status-{% if e.is_planned %}planned{% elif e.is_running %}ongoing{% else %}ended{% endif %}">
                   {% if e.is_planned %} 📋 Planned
                   {% elif e.is_running %} 🔴 Ongoing
                   {% else %} ✓ Ended
@@ -1280,11 +1485,15 @@
               </div>
             </div>
             <div class="event-actions">
-              {% if e.status != 'ended' or user.role == 'admin' or user.role == 'core' %}
+              {% if e.status != 'ended' or user.role == 'core' %}
               <a href="{% url 'event_edit' e.id %}" style="background: #3b82f6; color: white;">Edit</a>
               {% endif %}
-              <button onclick="openAssignModal({{ e.id }}, '{{ e.title|escapejs }}', '{{ e.status }}')" style="background: #8b5cf6; color: white;" {% if e.status == 'ended' %}disabled{% endif %}>Assign Users</button>
-              {% if user.role == 'admin' or user.role == 'core' %}
+              <button onclick="openAssignModal({{ e.id }}, '{{ e.title|escapejs }}', '{% if e.is_planned %}planned{% elif e.is_running %}ongoing{% else %}ended{% endif %}')" style="background: #8b5cf6; color: white;" {% if not e.is_planned and not e.is_running%}disabled{% endif %}>Assign Users</button>
+              {% if e.is_running %}
+              <button onclick="endEventAndPenalize({{ e.id }}, '{{ e.title|escapejs }}')" style="background: #f59e0b; color: white;">⚠️ End & Penalize</button>
+              {% endif %}
+              
+              {% if e.status != 'ended' or user.role == 'core' %}
               <a href="{% url 'event_delete' e.id %}" style="background: #ef4444; color: white;">Delete</a>
               {% endif %}
             </div>
@@ -1316,20 +1525,20 @@
       <div class="event-list-wrapper">
         <ul class="event-list" id="penaltyHistoryList">
           {% for penalty in penalty_history %}
-          <li class="penalty-history-item action-{{ penalty.action }}" data-penalty-id="{{ penalty.id }}" data-username="{{ penalty.user.username|lower }}" data-action="{{ penalty.action }}">
+          <li class="penalty-history-item action-{{ penalty.type }}" data-penalty-id="{{ penalty.id }}" data-username="{{ penalty.user.username|lower }}" data-action="{{ penalty.type }}">
             <div class="event-info">
               <div class="event-title">
-                <span style="font-weight: 700; color: #667eea;">{{ penalty.user.username }}</span>
+                <span style="font-weight: 700; color: #667eea;">{{ penalty.user.displayname }} - {{ penalty.user.username }}</span>
                 <span style="margin: 0 0.5rem; color: #9ca3af;">•</span>
-                <span style="{% if penalty.action == 'add' %}color: #f59e0b;{% elif penalty.action == 'reduce' %}color: #3b82f6;{% elif penalty.action == 'pardon' %}color: #10b981;{% elif penalty.action == 'ban' %}color: #ef4444;{% endif %} font-weight: 600;">
-                  {% if penalty.action == 'add' %}➕ Penalty Added
-                  {% elif penalty.action == 'reduce' %}➖ Penalty Reduced
-                  {% elif penalty.action == 'pardon' %}✓ Pardoned
-                  {% elif penalty.action == 'ban' %}🚫 Banned
+                <span style="{% if penalty.type == 'add' %}color: #f59e0b;{% elif penalty.type == 'reduce' %}color: #3b82f6;{% elif penalty.type == 'pardon' %}color: #10b981;{% elif penalty.type == 'ban' %}color: #ef4444;{% endif %} font-weight: 600;">
+                  {% if penalty.type == 'add' %}➕ Penalty Added
+                  {% elif penalty.type == 'reduce' %}➖ Penalty Reduced
+                  {% elif penalty.type == 'pardon' %}✓ Pardoned
+                  {% elif penalty.type == 'ban' %}🚫 Banned
                   {% endif %}
                 </span>
                 <span style="margin: 0 0.5rem; color: #9ca3af;">•</span>
-                <span style="color: #8b5cf6; font-weight: 500;">by {{ penalty.admin.username }}</span>
+                <span style="color: #8b5cf6; font-weight: 500;">by {% if penalty.admin.role == 'core' %} System {% else %}{{ penalty.admin.displayname }} {% endif %}</span>
               </div>
               <div class="event-time">
                 {{ penalty.timestamp|date:"M d, Y g:i A" }}
@@ -1340,9 +1549,7 @@
               </div>
             </div>
             <div class="event-actions">
-              <button onclick="revertPenalty({{ penalty.id }}, '{{ penalty.user.username|escapejs }}', '{{ penalty.action }}')" style="background: #8b5cf6; color: white;">
-                🔄 Revert
-              </button>
+
             </div>
           </li>
           {% empty %}
@@ -1720,9 +1927,9 @@
       <div class="group-selector">
         <label style="display: block; font-weight: 600; color: #333; margin-bottom: 0.5rem;">Select by Group:</label>
         <select id="groupSelectModal" class="filter-select" style="width: 100%;" onchange="selectGroupUsers()">
-          <option value="">-- Select a Group --</option>
+          <option value="">-- Show All Users --</option>
           {% for group in groups %}
-          <option value="{{ group }}">{{ group }}</option>
+            <option value="{{ group.name }}">{{ group.name }}</option>
           {% endfor %}
         </select>
       </div>
@@ -1734,13 +1941,20 @@
       
       <ul class="user-list" id="userList">
         {% for u in users %}
-        <li class="user-item" data-user-id="{{ u.id }}" data-username="{{ u.username|lower }}" data-role="{{ u.role|lower }}" data-group="{{ u.group|default:'' }}" onclick="toggleUser(this)">
-          <input type="checkbox" class="user-checkbox" value="{{ u.id }}" onclick="event.stopPropagation()">
-          <div class="user-info">
-            <div class="user-name">{{ u.username }}</div>
-            <div class="user-role">{{ u.role }}{% if u.group %} • <span class="user-group">{{ u.group }}</span>{% endif %}</div>
-          </div>
-        </li>
+          {% if u.role != 'core' or request.user.role == 'core' %}
+            <li class="user-item" 
+                data-user-id="{{ u.id }}" 
+                data-username="{{ u.username|lower }}" 
+                data-role="{{ u.role|lower }}" 
+                data-group="{{ u.graup.name|default:'' }}" 
+                onclick="toggleUser(this)">
+              <input type="checkbox" class="user-checkbox" value="{{ u.id }}" onclick="event.stopPropagation()">
+              <div class="user-info">
+                <div class="user-name">{{ u.displayname }} - {{u.username}}</div>
+                <div class="user-role">{{ u.role }}{% if u.graup %} • <span class="user-group">{{ u.graup.name }}</span>{% endif %}</div>
+              </div>
+            </li>
+          {% endif %}
         {% endfor %}
       </ul>
       
@@ -1750,7 +1964,179 @@
       </div>
     </div>
   </div>
+    
+  <!-- Event Detail Modal - Add this after your other modals -->  
+  <div id="eventDetailModal" class="modal">
+  <div class="modal-content" style="max-width: 900px;">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <span id="eventDetailTitle">Event Details</span>
+        <span id="eventDetailStatusBadge" class="event-status-badge" style="margin-left: 0.75rem;"></span>
+      </h3>
+      <button class="close-modal" onclick="closeEventDetailModal()">&times;</button>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <div>
+            <span style="color: #6b7280; font-size: 0.875rem;">📅 Start</span>
+            <p id="eventDetailStart" style="font-weight: 600; color: #333;"></p>
+          </div>
+          <div>
+            <span style="color: #6b7280; font-size: 0.875rem;">🏁 End</span>
+            <p id="eventDetailEnd" style="font-weight: 600; color: #333;"></p>
+          </div>
+          <div>
+            <span style="color: #6b7280; font-size: 0.875rem;">👥 Attendance</span>
+            <p style="font-weight: 600; color: #333;"><span id="checkedInCount">0</span> / <span id="totalAssigned">0</span> checked in</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="filter-search-container" style="margin-bottom: 1rem;">
+        <input type="text" id="attendeeSearch" class="search-input" placeholder="🔍 Search attendees..." onkeyup="filterAttendees()">
+        <select id="checkinFilter" class="filter-select" onchange="filterAttendees()">
+          <option value="">All Status</option>
+          <option value="checked">✅ Checked In</option>
+          <option value="pending">⏳ Pending</option>
+          <option value="penalized">⚠️ Penalized</option>
+        </select>
+        <button id="checkAllBtn" class="btn btn-small btn-secondary" onclick="checkInAll()" style="white-space: nowrap;">
+          ✅ Check In All Visible
+        </button>
+      </div>
+    </div>
+    
+    <div class="table-wrapper" style="max-height: 400px;">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Group</th>
+            <th>Status</th>
+            <th>Checked At</th>
+            <th>Scanned By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="attendeesTableBody">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+    </div>
+    
+    <div id="noAttendeesMessage" style="display: none; text-align: center; padding: 2rem; color: #6b7280;">
+      <span style="font-size: 3rem;">📋</span>
+      <p style="margin-top: 1rem; font-weight: 600;">No users assigned to this event</p>
+      <p style="font-size: 0.875rem;">Use the "Assign Users" button to add participants</p>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEventDetailModal()">Close</button>
+      <button class="btn-save" onclick="openAssignModalFromDetail()" id="assignFromDetailBtn">
+        <span style="margin-right: 0.5rem;">👥</span>
+        Manage Assigned Users
+      </button>
+    </div>
+  </div>
+</div>
+
   
+
+<!-- STEP 2: Add this modal after your other modals -->
+<div id="logModal" class="modal">
+  <div class="modal-content" style="max-width: 1100px;">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <span>📋</span>
+        Activity Logs
+      </h3>
+      <button class="close-modal" onclick="closeLogModal()">&times;</button>
+    </div>
+    
+    <div class="filter-search-container" style="margin-bottom: 1rem;">
+      <input type="text" id="logSearch" class="search-input" placeholder="🔍 Search logs..." onkeyup="filterLogs()">
+      <select id="logActionFilter" class="filter-select" onchange="filterLogs()">
+        <option value="">All Actions</option>
+        <optgroup label="Authentication">
+          <option value="login">Login</option>
+          <option value="logout">Logout</option>
+        </optgroup>
+        <optgroup label="Users">
+          <option value="user_create">User Created</option>
+          <option value="user_edit">User Edited</option>
+          <option value="user_delete">User Deleted</option>
+        </optgroup>
+        <optgroup label="Groups">
+          <option value="group_create">Group Created</option>
+          <option value="group_edit">Group Edited</option>
+          <option value="group_delete">Group Deleted</option>
+        </optgroup>
+        <optgroup label="Events">
+          <option value="event_create">Event Created</option>
+          <option value="event_edit">Event Edited</option>
+          <option value="event_delete">Event Deleted</option>
+          <option value="event_assign">Users Assigned</option>
+          <option value="event_end">Event Ended</option>
+        </optgroup>
+        <optgroup label="Check-ins">
+          <option value="checkin">Check-in</option>
+          <option value="checkin_undo">Check-in Undone</option>
+          <option value="checkin_bulk">Bulk Check-in</option>
+        </optgroup>
+        <optgroup label="Penalties">
+          <option value="penalty_add">Penalty Added</option>
+          <option value="penalty_reduce">Penalty Reduced</option>
+          <option value="penalty_pardon">User Pardoned</option>
+          <option value="penalty_ban">User Banned</option>
+          <option value="penalty_auto">Auto Penalty</option>
+        </optgroup>
+        <optgroup label="System">
+          <option value="scheduler_run">Scheduler Run</option>
+          <option value="import_users">Users Imported</option>
+        </optgroup>
+      </select>
+      <button class="btn btn-small" onclick="refreshLogs()" style="white-space: nowrap;">
+        🔄 Refresh
+      </button>
+    </div>
+    
+    <div id="logLoading" style="display: none; text-align: center; padding: 2rem;">
+      <div style="font-size: 2rem;">⏳</div>
+      <p style="color: #6b7280; margin-top: 0.5rem;">Loading logs...</p>
+    </div>
+    
+    <div class="table-wrapper" style="max-height: 500px;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 160px;">Timestamp</th>
+            <th style="width: 140px;">Action</th>
+            <th style="width: 120px;">By</th>
+            <th style="width: 120px;">Target</th>
+            <th>Details</th>
+            <th style="width: 100px;">IP</th>
+          </tr>
+        </thead>
+        <tbody id="logTableBody">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+    </div>
+    
+    <div id="noLogsMessage" style="display: none; text-align: center; padding: 2rem; color: #6b7280;">
+      <span style="font-size: 3rem;">📋</span>
+      <p style="margin-top: 1rem; font-weight: 600;">No logs found</p>
+      <p style="font-size: 0.875rem;">Activity logs will appear here</p>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeLogModal()">Close</button>
+    </div>
+  </div>
+</div>
+
   <script>
     let currentEventId = null;
     let currentEventStatus = null;
@@ -1792,19 +2178,25 @@
     }
     
     function filterEvents() {
-      const searchTerm = document.getElementById('eventSearch').value.toLowerCase();
+      // Get the search term and trim whitespace
+      const searchTerm = document.getElementById('eventSearch').value.toLowerCase().trim();
+      // Get the status filter
       const statusFilter = document.getElementById('eventStatusFilter').value;
+      
       const items = document.querySelectorAll('#eventsList .event-item');
       
       items.forEach(item => {
-        const title = item.dataset.title || '';
-        const status = item.dataset.status || '';
+        // Get title and status from data attributes
+        const title = (item.dataset.title || '').toLowerCase();
+        const status = (item.dataset.status || '').toLowerCase().trim();
         
+        // Check if matches
         const matchesSearch = title.includes(searchTerm);
         const matchesStatus = !statusFilter || status === statusFilter;
         
+        // Apply visibility
         if (matchesSearch && matchesStatus) {
-          item.style.display = 'flex';
+          item.style.display = 'flex'; // Use flex to maintain layout
         } else {
           item.style.display = 'none';
         }
@@ -2346,23 +2738,33 @@
     }
     
     function selectGroupUsers() {
-      const selectedGroup = document.getElementById('groupSelectModal').value;
-      
-      if (!selectedGroup) return;
-      
+      // 1. Get the selected group name
+      const selectedGroup = document.getElementById('groupSelectModal').value.trim();
       const userItems = document.querySelectorAll('.user-item');
       
+      // 2. Reset the "Select All" checkbox (because the view changed)
+      document.getElementById('selectAll').checked = false;
+
+      // 3. Loop through items and toggle visibility
       userItems.forEach(item => {
-        const itemGroup = item.dataset.group;
-        const checkbox = item.querySelector('.user-checkbox');
-        
-        if (itemGroup === selectedGroup) {
-          checkbox.checked = true;
-          item.classList.add('selected');
-        }
+          const itemGroup = (item.dataset.group || '').trim();
+          
+          // If no group is selected ("") OR the group matches exactly
+          if (selectedGroup === "" || itemGroup === selectedGroup) {
+              item.style.display = 'flex'; // Show the user
+          } else {
+              item.style.display = 'none'; // Hide the user
+              
+              // Optional: Uncheck users when they get hidden? 
+              // If you want to prevent submitting hidden users, uncomment these lines:
+              // const checkbox = item.querySelector('.user-checkbox');
+              // if(checkbox) checkbox.checked = false;
+              // item.classList.remove('selected');
+          }
       });
       
-      updateSelectAllCheckbox();
+      // 4. (Optional) Re-run the "Select All" checker to see if the box should be ticked
+      // updateSelectAllCheckbox(); 
     }
     
     function saveAssignments() {
@@ -2471,6 +2873,467 @@
         });
       });
     });
+
+  let currentDetailEventId = null;
+  let currentDetailEventStatus = null;
+  
+  // Make event titles clickable - Add this to your existing event items
+  function makeEventTitlesClickable() {
+    document.querySelectorAll('.event-item .event-title').forEach(title => {
+      const eventItem = title.closest('.event-item');
+      const eventId = eventItem.dataset.eventId;
+      const eventTitle = title.textContent.trim().split('\n')[0].trim();
+      
+      title.style.cursor = 'pointer';
+      title.style.textDecoration = 'underline';
+      title.style.textDecorationColor = 'transparent';
+      title.style.transition = 'text-decoration-color 0.2s';
+      
+      title.addEventListener('mouseenter', () => {
+        title.style.textDecorationColor = '#667eea';
+      });
+      
+      title.addEventListener('mouseleave', () => {
+        title.style.textDecorationColor = 'transparent';
+      });
+      
+      title.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEventDetailModal(eventId);
+      });
+    });
+  }
+  
+  function openEventDetailModal(eventId) {
+    currentDetailEventId = eventId;
+    
+    // Fetch event details and attendees
+    fetch(`/events/${eventId}/details/`, {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        alert('Error loading event details: ' + (data.error || 'Unknown error'));
+        return;
+      }
+      
+      currentDetailEventStatus = data.event.status;
+      
+      // Populate header info
+      document.getElementById('eventDetailTitle').textContent = data.event.title;
+      document.getElementById('eventDetailStart').textContent = data.event.start_time;
+      document.getElementById('eventDetailEnd').textContent = data.event.end_time;
+      
+      // Status badge
+      const statusBadge = document.getElementById('eventDetailStatusBadge');
+      statusBadge.className = 'event-status-badge status-' + data.event.status;
+      statusBadge.innerHTML = data.event.status === 'planned' ? '📋 Planned' : 
+                              data.event.status === 'ongoing' ? '🔴 Ongoing' : '✓ Ended';
+      
+      // Disable check-in for ended events
+      const checkAllBtn = document.getElementById('checkAllBtn');
+      const assignBtn = document.getElementById('assignFromDetailBtn');
+      if (data.event.status === 'ended') {
+        checkAllBtn.disabled = true;
+        checkAllBtn.style.opacity = '0.5';
+        assignBtn.disabled = true;
+        assignBtn.style.opacity = '0.5';
+      } else {
+        checkAllBtn.disabled = false;
+        checkAllBtn.style.opacity = '1';
+        assignBtn.disabled = false;
+        assignBtn.style.opacity = '1';
+      }
+      
+      // Populate attendees table
+      populateAttendeesTable(data.attendees, data.event.status, data.event.penalties_processed);
+      
+      // Update counts
+      updateAttendanceCounts(data.attendees);
+      
+      // Show/hide no attendees message
+      const noMsg = document.getElementById('noAttendeesMessage');
+      const tableWrapper = document.querySelector('#eventDetailModal .table-wrapper');
+      if (data.attendees.length === 0) {
+        noMsg.style.display = 'block';
+        tableWrapper.style.display = 'none';
+      } else {
+        noMsg.style.display = 'none';
+        tableWrapper.style.display = 'block';
+      }
+      
+      document.getElementById('eventDetailModal').classList.add('active');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to load event details');
+    });
+  }
+  
+  function populateAttendeesTable(attendees, eventStatus, penaltiesProcessed) {
+    const tbody = document.getElementById('attendeesTableBody');
+    tbody.innerHTML = '';
+    
+    const isEnded = eventStatus === 'ended';
+    
+    attendees.forEach(attendee => {
+      const row = document.createElement('tr');
+      row.className = 'attendee-row';
+      row.dataset.userId = attendee.user_id;
+      row.dataset.username = attendee.username.toLowerCase();
+      
+      // Determine status: checked, penalized (ended + not checked), or pending
+      let statusClass, statusText, dataStatus;
+      if (attendee.is_checked) {
+        statusClass = 'checked';
+        statusText = '✅ Checked In';
+        dataStatus = 'checked';
+      } else if (isEnded && penaltiesProcessed) {
+        statusClass = 'penalized';
+        statusText = '⚠️ Penalized';
+        dataStatus = 'penalized';
+      } else {
+        statusClass = 'pending';
+        statusText = '⏳ Pending';
+        dataStatus = 'pending';
+      }
+      
+      row.dataset.checked = dataStatus;
+      
+      row.innerHTML = `
+        <td>
+          <strong>${attendee.displayname || attendee.username}</strong>
+          <div style="font-size: 0.8rem; color: #6b7280;">@${attendee.username}</div>
+        </td>
+        <td>
+          ${attendee.group ? `<span class="badge badge-group">${attendee.group}</span>` : '<span style="color: #9ca3af;">—</span>'}
+        </td>
+        <td>
+          <span class="checkin-status ${statusClass}">
+            ${statusText}
+          </span>
+        </td>
+        <td style="font-size: 0.875rem; color: #6b7280;">
+          ${attendee.checked_at || '—'}
+        </td>
+        <td style="font-size: 0.875rem; color: #8b5cf6; font-weight: 500;">
+          ${attendee.scanner || '—'}
+        </td>
+        <td>
+          ${attendee.is_checked ? 
+            `<button class="undo-btn" onclick="undoCheckIn(${attendee.user_id})" ${isEnded ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>↩️ Undo</button>` :
+            (isEnded && penaltiesProcessed ? 
+              `<span style="color: #991b1b; font-size: 0.875rem; font-weight: 500;">🚫 No-show</span>` :
+              `<button class="checkin-btn" onclick="checkInUser(${attendee.user_id})" ${isEnded ? 'disabled' : ''}>✅ Check In</button>`
+            )
+          }
+        </td>
+      `;
+      
+      tbody.appendChild(row);
+    });
+  }
+  
+  function updateAttendanceCounts(attendees) {
+    const total = attendees.length;
+    const checked = attendees.filter(a => a.is_checked).length;
+    
+    document.getElementById('totalAssigned').textContent = total;
+    document.getElementById('checkedInCount').textContent = checked;
+  }
+  
+  function filterAttendees() {
+    const search = document.getElementById('attendeeSearch').value.toLowerCase();
+    const statusFilter = document.getElementById('checkinFilter').value;
+    const rows = document.querySelectorAll('#attendeesTableBody .attendee-row');
+    
+    rows.forEach(row => {
+      const username = row.dataset.username;
+      const checked = row.dataset.checked;
+      
+      const matchesSearch = username.includes(search);
+      const matchesStatus = !statusFilter || checked === statusFilter;
+      
+      row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+    });
+  }
+  
+  function checkInUser(userId) {
+    fetch(`/events/${currentDetailEventId}/checkin/${userId}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Update the row
+        const row = document.querySelector(`.attendee-row[data-user-id="${userId}"]`);
+        if (row) {
+          row.dataset.checked = 'checked';
+          row.classList.add('just-checked');
+          setTimeout(() => row.classList.remove('just-checked'), 1500);
+          
+          // Update status cell
+          row.querySelector('.checkin-status').className = 'checkin-status checked';
+          row.querySelector('.checkin-status').innerHTML = '✅ Checked In';
+          
+          // Update checked at
+          row.cells[3].textContent = data.checked_at || 'Just now';
+          
+          // Update scanner
+          row.cells[4].textContent = data.scanner || 'Admin';
+          
+          // Update action button
+          row.cells[5].innerHTML = `<button class="undo-btn" onclick="undoCheckIn(${userId})">↩️ Undo</button>`;
+          
+          // Update count
+          const count = parseInt(document.getElementById('checkedInCount').textContent) + 1;
+          document.getElementById('checkedInCount').textContent = count;
+        }
+      } else {
+        alert('Check-in failed: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to check in user');
+    });
+  }
+  
+  function undoCheckIn(userId) {
+    if (!confirm('Are you sure you want to undo this check-in?')) return;
+    
+    fetch(`/events/${currentDetailEventId}/checkin/${userId}/undo/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        const row = document.querySelector(`.attendee-row[data-user-id="${userId}"]`);
+        if (row) {
+          row.dataset.checked = 'pending';
+          
+          row.querySelector('.checkin-status').className = 'checkin-status pending';
+          row.querySelector('.checkin-status').innerHTML = '⏳ Pending';
+          
+          row.cells[3].textContent = '—';
+          row.cells[4].textContent = '—';
+          row.cells[5].innerHTML = `<button class="checkin-btn" onclick="checkInUser(${userId})">✅ Check In</button>`;
+          
+          const count = parseInt(document.getElementById('checkedInCount').textContent) - 1;
+          document.getElementById('checkedInCount').textContent = count;
+        }
+      } else {
+        alert('Undo failed: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to undo check-in');
+    });
+  }
+  
+  function checkInAll() {
+    const visiblePending = document.querySelectorAll('.attendee-row:not([style*="display: none"])[data-checked="pending"]');
+    
+    if (visiblePending.length === 0) {
+      alert('No pending users to check in');
+      return;
+    }
+    
+    if (!confirm(`Check in ${visiblePending.length} user(s)?`)) return;
+    
+    const userIds = Array.from(visiblePending).map(row => row.dataset.userId);
+    
+    fetch(`/events/${currentDetailEventId}/checkin/bulk/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({ user_ids: userIds })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Refresh the modal
+        openEventDetailModal(currentDetailEventId);
+        showSuccessModal(`Successfully checked in ${data.count} user(s)!`);
+      } else {
+        alert('Bulk check-in failed: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to perform bulk check-in');
+    });
+  }
+  
+  function closeEventDetailModal() {
+    document.getElementById('eventDetailModal').classList.remove('active');
+    document.getElementById('attendeeSearch').value = '';
+    document.getElementById('checkinFilter').value = '';
+    currentDetailEventId = null;
+    currentDetailEventStatus = null;
+  }
+  
+  function openAssignModalFromDetail() {
+    closeEventDetailModal();
+    const eventItem = document.querySelector(`.event-item[data-event-id="${currentDetailEventId}"]`);
+    if (eventItem) {
+      const title = eventItem.querySelector('.event-title').textContent.trim().split('\n')[0].trim();
+      openAssignModal(currentDetailEventId, title, currentDetailEventStatus);
+    }
+  }
+  
+  // Close modal on outside click
+  window.addEventListener('click', function(event) {
+    const modal = document.getElementById('eventDetailModal');
+    if (event.target === modal) {
+      closeEventDetailModal();
+    }
+  });
+  
+  // Initialize clickable titles on page load
+  document.addEventListener('DOMContentLoaded', makeEventTitlesClickable);
+
+  function endEventAndPenalize(eventId, eventTitle) {
+    if (!confirm(`Are you sure you want to end "${eventTitle}" and apply penalties to all no-shows?`)) {
+      return;
+    }
+    
+    fetch(`/events/${eventId}/end-and-penalize/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        showSuccessModal(data.message);
+      } else {
+        alert('Error: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to end event');
+    });
+  }
+
+   let allLogs = [];
+  
+  function openLogModal() {
+    document.getElementById('logModal').classList.add('active');
+    loadLogs();
+  }
+  
+  function closeLogModal() {
+    document.getElementById('logModal').classList.remove('active');
+  }
+  
+  function loadLogs() {
+    const loading = document.getElementById('logLoading');
+    const tableWrapper = document.querySelector('#logModal .table-wrapper');
+    const noLogs = document.getElementById('noLogsMessage');
+    
+    loading.style.display = 'block';
+    tableWrapper.style.display = 'none';
+    noLogs.style.display = 'none';
+    
+    fetch('/logs/', {
+      method: 'GET',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      loading.style.display = 'none';
+      
+      if (data.success && data.logs.length > 0) {
+        allLogs = data.logs;
+        populateLogTable(data.logs);
+        tableWrapper.style.display = 'block';
+      } else {
+        noLogs.style.display = 'block';
+      }
+    })
+    .catch(err => {
+      loading.style.display = 'none';
+      console.error('Error loading logs:', err);
+      alert('Failed to load logs');
+    });
+  }
+  
+  function refreshLogs() {
+    loadLogs();
+  }
+  
+  function populateLogTable(logs) {
+    const tbody = document.getElementById('logTableBody');
+    tbody.innerHTML = '';
+    
+    logs.forEach(log => {
+      const row = document.createElement('tr');
+      row.dataset.action = log.action;
+      row.dataset.search = `${log.user} ${log.target_user || ''} ${log.target_event || ''} ${log.details || ''}`.toLowerCase();
+      
+      // Determine target display
+      let target = '—';
+      if (log.target_user) {
+        target = `👤 ${log.target_user}`;
+      } else if (log.target_event) {
+        target = `📅 ${log.target_event}`;
+      } else if (log.target_group) {
+        target = `👥 ${log.target_group}`;
+      }
+      
+      row.innerHTML = `
+        <td class="log-timestamp">${log.timestamp}</td>
+        <td><span class="log-action-badge ${log.action}">${log.action_display}</span></td>
+        <td class="log-user">${log.user_display || log.user}</td>
+        <td class="log-target">${target}</td>
+        <td class="log-details" title="${log.details || ''}">${log.details || '—'}</td>
+        <td class="log-ip">${log.ip_address || '—'}</td>
+      `;
+      
+      tbody.appendChild(row);
+    });
+  }
+  
+  function filterLogs() {
+    const search = document.getElementById('logSearch').value.toLowerCase();
+    const actionFilter = document.getElementById('logActionFilter').value;
+    const rows = document.querySelectorAll('#logTableBody tr');
+    
+    rows.forEach(row => {
+      const action = row.dataset.action;
+      const searchText = row.dataset.search;
+      
+      const matchesSearch = !search || searchText.includes(search);
+      const matchesAction = !actionFilter || action === actionFilter;
+      
+      row.style.display = (matchesSearch && matchesAction) ? '' : 'none';
+    });
+  }
+  
+  // Close log modal on outside click
+  window.addEventListener('click', function(event) {
+    const logModal = document.getElementById('logModal');
+    if (event.target === logModal) {
+      closeLogModal();
+    }
+  });
   </script>
 </body>
 </html>
