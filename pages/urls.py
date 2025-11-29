@@ -39,4 +39,5 @@ urlpatterns = [
     path("penalty/ban/<int:user_id>/", views.penalty_ban),
     path('logs/', views.get_logs, name='get_logs'),
     path('updater/', views.update_server),
+    path('run-backup/', views.auto_backup),
 ]

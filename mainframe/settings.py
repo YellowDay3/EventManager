@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-li#v&p1ti7@lp(nbn+1u5dks-0pu-6b)a6b-&tc)r*s)h5c48*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'incubative-pearly-kylan.ngrok-free.dev', 'eventmanager-68ya.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'incubative-pearly-kylan.ngrok-free.dev', 'eventmanager-68ya.onrender.com', 'robotiqueformation.pythonanywhere.com']
 
 
 # Application definition

@@ -19,7 +19,6 @@ from django.views.decorators.http import require_http_methods
 from superdb.scheduler import apply_no_show_penalties
 import os
 import subprocess# You might need to pip install gitpython, or use subprocess
-#import testtouipdate
 
 # SECURITY WARNING: Ideally, check for a secret token here!
 # [AUTO UPDATE FOR PYTHONANYWHERE!]
@@ -27,18 +26,41 @@ import subprocess# You might need to pip install gitpython, or use subprocess
 def update_server(request):
     if request.method == "POST":
         repo_dir = '/home/robotiqueformation/EventManager'
-        
-        print('this is rad!')
 
         # 1. Update Code
         os.system(f'cd {repo_dir} && git pull')
-        
+
         # 2. Reload the Server (Touch the WSGI file)
         wsgi_file = '/var/www/robotiqueformation_pythonanywhere_com_wsgi.py'
         os.system(f'touch {wsgi_file}')
-        
+
         return HttpResponse("Updated successfully", status=200)
     return HttpResponse("Wrong method", status=400)
+
+def auto_backup(request):
+    # SECURITY: Only allow this if the secret key is correct
+    # Change 'Secret123' to a long random password
+    if request.GET.get('key') != 'D@rkn1r-12':
+        return HttpResponse("Unauthorized", status=403)
+
+    # 1. Define paths
+    repo_dir = '/home/robotiqueformation/EventManager'
+
+    # 2. Run the Git commands
+    try:
+        # Add the database
+        subprocess.run(['git', 'add', 'db.sqlite3'], cwd=repo_dir, check=True)
+
+        # Commit (ignore error if nothing changed)
+        subprocess.run(['git', 'commit', '-m', 'Auto-backup DB'], cwd=repo_dir)
+
+        # Push to GitHub
+        subprocess.run(['git', 'push', 'origin', 'main'], cwd=repo_dir, check=True)
+
+        return HttpResponse("Backup Successful: Database pushed to GitHub.")
+
+    except subprocess.CalledProcessError as e:
+        return HttpResponse(f"Backup Failed: {str(e)}", status=500)
 
 @login_required(login_url='/accounts/login')
 def menu(request):
