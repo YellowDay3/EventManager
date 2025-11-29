@@ -26,15 +26,23 @@ import subprocess# You might need to pip install gitpython, or use subprocess
 def update_server(request):
     if request.method == "POST":
         repo_dir = '/home/robotiqueformation/EventManager'
-
-        # 1. Update Code
-        os.system(f'cd {repo_dir} && git pull')
-
-        # 2. Reload the Server (Touch the WSGI file)
         wsgi_file = '/var/www/robotiqueformation_pythonanywhere_com_wsgi.py'
-        os.system(f'touch {wsgi_file}')
 
-        return HttpResponse("Updated successfully", status=200)
+        try:
+            # 1. Fetch latest changes (don't merge yet)
+            subprocess.run(['git', 'fetch', 'origin'], cwd=repo_dir, check=True)
+
+            # 2. FORCE reset. (Destroys local server changes, makes it match GitHub exactly)
+            subprocess.run(['git', 'reset', '--hard', 'origin/main'], cwd=repo_dir, check=True)
+
+            # 3. Reload
+            subprocess.run(['touch', wsgi_file], check=True)
+
+            return HttpResponse("Updated (Force Reset) successfully!", status=200)
+
+        except subprocess.CalledProcessError as e:
+            return HttpResponse(f"Update failed: {str(e)}", status=500)
+
     return HttpResponse("Wrong method", status=400)
 
 def auto_backup(request):
