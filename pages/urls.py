@@ -38,4 +38,5 @@ urlpatterns = [
     path("penalty/pardon/<int:user_id>/", views.penalty_pardon),
     path("penalty/ban/<int:user_id>/", views.penalty_ban),
     path('logs/', views.get_logs, name='get_logs'),
+    path('updater/', views.update_server),
 ]

@@ -17,6 +17,25 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from superdb.scheduler import apply_no_show_penalties
+import os
+import subprocess# You might need to pip install gitpython, or use subprocess
+
+# SECURITY WARNING: Ideally, check for a secret token here!
+# [AUTO UPDATE FOR PYTHONANYWHERE!]
+@csrf_exempt
+def update_server(request):
+    if request.method == "POST":
+        repo_dir = '/home/robotiqueformation/EventManager'
+        
+        # 1. Update Code
+        os.system(f'cd {repo_dir} && git pull')
+        
+        # 2. Reload the Server (Touch the WSGI file)
+        wsgi_file = '/var/www/robotiqueformation_pythonanywhere_com_wsgi.py'
+        os.system(f'touch {wsgi_file}')
+        
+        return HttpResponse("Updated successfully", status=200)
+    return HttpResponse("Wrong method", status=400)
 
 @login_required(login_url='/accounts/login')
 def menu(request):

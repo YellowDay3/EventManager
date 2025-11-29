@@ -1393,7 +1393,7 @@
           <tbody id="usersTableBody">
             {% for u in users %}
             {% if u.role != 'core' %}
-            <tr data-username="{{ u.username|lower }}" data-displayname="{{ u.displayname|lower }}" data-role="{{ u.role }}" data-penalty="{{ u.penalty_status }}" data-group="{{ u.group|default:'' }}">
+            <tr data-username="{{ u.username|lower }}" data-displayname="{{ u.displayname|lower }}" data-role="{{ u.role }}" data-penalty="{{ u.penalty_status }}" data-group="{{ u.graup.name|default:'' }}">
               <td><strong>{{ u.displayname }}</strong></td>
               <td><strong>{{ u.username }}</strong></td>
               <td>
