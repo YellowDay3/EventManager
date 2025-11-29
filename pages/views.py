@@ -19,6 +19,7 @@ from django.views.decorators.http import require_http_methods
 from superdb.scheduler import apply_no_show_penalties
 import os
 import subprocess# You might need to pip install gitpython, or use subprocess
+#import testtouipdate
 
 # SECURITY WARNING: Ideally, check for a secret token here!
 # [AUTO UPDATE FOR PYTHONANYWHERE!]
@@ -27,6 +28,8 @@ def update_server(request):
     if request.method == "POST":
         repo_dir = '/home/robotiqueformation/EventManager'
         
+        print('this is rad!')
+
         # 1. Update Code
         os.system(f'cd {repo_dir} && git pull')
         
